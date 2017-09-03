@@ -20,43 +20,18 @@
 
         <p>Welcome to the world of music visualization!</p>
 
-        <p></p>
+        <p>Inside, you will find an assortment of visualizations rendered in 3D, as well as a few sample tracks to test. You can even choose your own music file!</p>
 
-        <p>This app was built using three.js and the Web Audio API.</p>
+        <p>This app was built using three.js library and the Web Audio API.</p>
 
         <span id="enter">
           Enter
         </span>
-
-        <ul class="personal-info">
-          <li><a href="https://github.com/tigerwins/Synesthesia/" target="_blank">
-            <!-- <svg width="24" height="24">
-              <image width="24" height="24" xlinkHref={window.images.github_svg} />
-            </svg> -->
-            <i class="fa fa-github" aria-hidden="true"></i>
-          </a></li>
-
-          <li class="linkedin">
-            <a href="https://www.linkedin.com/in/jonathanzliu/" target="_blank">
-              <!-- <svg width="24" height="24">
-                <image width="24" height="24" xlinkHref="" />
-              </svg> -->
-              <i class="fa fa-linkedin-square" aria-hidden="true"></i>
-            </a>
-          </li>
-
-          <li class="website">
-            <a href="#">
-              <i class="fa fa-user-circle" aria-hidden="true"></i>
-            </a>
-          </li>
-        </ul>
-
       </div>
     </div>
 
     <nav class="nav">
-      <div class="title">
+      <div class="title noselect">
         <h1>Synesthesia</h1>
       </div>
       <div class="nav-option">
@@ -64,9 +39,9 @@
         <label for="vis-check">Visualizations</label>
 
         <ul class="menu">
-          <li class="vis-type">Type 1</li>
-          <li class="vis-type">Type 2</li>
-          <li class="vis-type">Type 3</li>
+          <li class="vis-type"><span>Waveform</span></li>
+          <li class="vis-type"><span>Spherical Rings</span></li>
+          <li class="vis-type"><span>Fountain</span></li>
         </ul>
       </div>
 
@@ -88,15 +63,16 @@
             <span class="artist">Peter Ilyich Tchaikovsky</span>
           </li>
           <li>
-            Choose a file
+            <span>Choose a file</span>
           </li>
         </ul>
       </div>
+
+
       <div id="question">
         <i class="fa fa-question-circle-o" aria-hidden="true"></i>
       </div>
     </nav>
-
 
 
     <div class="controls-bar">
@@ -108,5 +84,25 @@
 
       </div>
     </div>
+
+    <ul class="personal-info">
+      <li><a href="https://github.com/tigerwins/Synesthesia/" target="_blank" title="Github">
+        <i class="fa fa-github" aria-hidden="true"></i>
+      </a></li>
+
+      <li class="linkedin">
+        <a href="https://www.linkedin.com/in/jonathanzliu/" target="_blank" title="LinkedIn">
+          <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+        </a>
+      </li>
+
+      <li class="website">
+        <a href="#" title="Personal Website">
+          <i class="fa fa-user-circle" aria-hidden="true"></i>
+        </a>
+      </li>
+    </ul>
+
+
   </body>
 </html>
