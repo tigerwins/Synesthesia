@@ -18,7 +18,7 @@ body {
 
 div.landing-page {
   z-index: 5;
-  transition: .5s;
+  /*transition: .5s;*/
   position: fixed;
   top: 0;
   bottom: 0;
@@ -26,10 +26,12 @@ div.landing-page {
   left: 0;
   background-color: rgba(50,50,50,0.65);
   overflow: hidden;
+
   animation: fadeIn 100ms ease-in-out 0s 1 normal forwards;
   -webkit-animation: fadeIn 100ms ease-in-out 0s 1 normal forwards;
   animation: fadeOut 100ms ease-in-out 0s 1 normal forwards;
   -webkit-animation: fadeOut 100ms ease-in-out 0s 1 normal forwards;
+
   transition: 0.3s;
 }
 
@@ -51,6 +53,7 @@ div.modal {
   top: 30%;
   left: 50%;
   transform: translate(-50%, 0);
+  transition: 0.5s;
 }
 
 div.modal > h1 {
@@ -99,9 +102,6 @@ div.nav-option {
 
 label {
   display: block;
-  /*display: flex;
-  justify-content: center;
-  align-items: center;*/
   cursor: pointer;
   text-transform: uppercase;
   font-size: 20px;
@@ -112,8 +112,6 @@ label:after {
   width: 0;
   height: 0;
   position: absolute;
-  /*top: 50%;*/
-  /*transition: border-bottom .1s, border-top .1s .1s;*/
 }
 
 input:checked ~ label:after {
@@ -197,22 +195,30 @@ div#question:hover {
 
 /* Audio Controls */
 
- div.audio-controls {
-   position: absolute;
-   bottom: 0;
-   left: 0;
-   margin: 15px;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
- }
+div.audio-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
- div.buttons {
-   display: flex;
-   justify-content: flex-start;
-   
- }
+div.buttons {
+  display: flex;
+  justify-content: flex-start;
 
+}
+
+div.buttons > i {
+  margin: 0 5px;
+}
+
+div.buttons > i:hover {
+  opacity: 0.65;
+  cursor: pointer;
+}
 
 /* Contact info footer */
 
