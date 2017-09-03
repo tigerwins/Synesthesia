@@ -190,7 +190,20 @@ div#question:hover {
 
 /* Audio Controls */
 
+ div.audio-controls {
+   position: absolute;
+   bottom: 0;
+   left: 0;
+   margin: 15px;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+ }
 
+ div.buttons {
+   display: flex;
+   justify-content: center;
+ }
 
 
 /* Contact info footer */
@@ -214,4 +227,26 @@ ul.personal-info > li:hover {
   opacity: .5;
   transition: .2s;
   cursor: pointer;
+}
+
+/* Visualization Container */
+
+#container {
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 1;
+}
+
+canvas {
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 1;
 }
