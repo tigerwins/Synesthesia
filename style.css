@@ -1,0 +1,186 @@
+/*General*/
+
+body {
+  background: #111;
+  color: #efefef;
+}
+
+/*Modal*/
+
+div.landing-page {
+  z-index: 5;
+  transition: .5s;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: rgba(50,50,50,0.65);
+  overflow: hidden;
+  animation: fadeIn 100ms ease-out 0s 1 normal forwards;
+  -webkit-animation: fadeIn 100ms ease-out 0s 1 normal forwards;
+  /*animation: fadeOut 100ms ease-out 0s 1 normal forwards;
+  -webkit-animation: fadeOut 100ms ease-out 0s 1 normal forwards;*/
+}
+
+.hidden {
+  display: none;
+}
+
+div.modal {
+  background: #aaa;
+  color: #333;
+  margin: 0 auto;
+  padding: 30px;
+  width: 25%;
+  /*height: 40%; /* might not need this */*/
+  font-size: 16px;
+
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+div.modal > h1 {
+  font-size: 26px;
+  text-align: center;
+  font-weight: bold;
+}
+
+div.modal > p {
+  padding:
+}
+
+span#enter {
+  padding: 9px 20px;
+  width: 40px;
+  background: #ccc;
+  text-align: center;
+  /*display: inline-block;*/
+}
+
+span#enter:hover {
+  cursor: pointer;
+}
+
+ul.personal-info {
+  list-style: none;
+  margin: 10px 30px;
+  display: flex;
+  justify-content: space-around;
+}
+
+
+
+/*Navbar*/
+
+nav {
+  display: flex;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav > div.title {
+  font-size: 30px;
+  margin: 15px;
+}
+
+div.nav-option {
+  display: flex;
+  align-items: center;
+  margin: 0 15px;
+}
+
+label {
+  /*width: 42px;*/
+  /*height: 52px;*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 20px;
+}
+
+label:after {
+  content: "";
+  width: 0;
+  height: 0;
+  transition: border-bottom .1s, border-top .1s .1s;
+}
+
+input:checked ~ label:after {
+  transition: border-top .1s, border-bottom .1s .1s;
+}
+
+input#vis-check, input#music-check {
+  display: none;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+input:checked ~ ul.menu{
+  max-height: 300px;
+  transition: max-height 0.4s;
+  animation: fadein 0.4s;
+}
+
+ul.menu {
+  line-height: 1.25;
+  border-radius: 3px;
+  /*margin-top: 10px;*/
+  z-index: 50;
+  max-height: 0;
+  overflow: hidden;
+  list-style-type: none;
+  box-shadow: 0 1px 1px rgba(200,200,200,0.7);
+  transition: max-height 0.4s ease-out;
+  animation: fadeout 0.4s;
+
+  position: absolute;
+}
+
+ul.menu li {
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+}
+
+ul.menu .logout {
+  border-bottom: 1px solid #ccc;
+}
+
+ul.menu li a {
+  display: block;
+  padding: 8px 16px;
+  color: #2b6dad;
+  text-decoration: none;
+  transition: background .3s;
+  white-space: nowrap;
+}
+
+ul.menu li a:hover{
+  background: #dfeffa;
+  text-decoration: none;
+}
+
+div#question {
+  margin-left: auto;
+
+}
+
+div#question:hover {
+  cursor: pointer;
+}

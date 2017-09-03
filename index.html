@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Synesthesia</title>
+    <script type="text/javascript" src="app.js"></script>
+
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato|Lustria" rel="stylesheet">
+    <link rel="stylesheet" href="reset.css" type="text/css">
+    <link rel="stylesheet" href="style.css" type="text/css">
+
+    <!-- Need a Favicon!
+    <link rel="icon" href="FAVICON_URL_HERE" type="image/png"> -->
+  </head>
+  <body>
+    <div class="landing-page">
+      <div class="modal">
+        <h1>Synesthesia</h1>
+
+        <p>Welcome to the world of music visualization!</p>
+
+        <p></p>
+
+        <p>This app was built using three.js and the Web Audio API.</p>
+
+        <span id="enter">
+          Enter
+        </span>
+
+        <ul class="personal-info">
+          <li><a href="https://github.com/tigerwins/Synesthesia/" target="_blank">
+            <!-- <svg width="24" height="24">
+              <image width="24" height="24" xlinkHref={window.images.github_svg} />
+            </svg> -->
+            <i class="fa fa-github" aria-hidden="true"></i>
+          </a></li>
+
+          <li class="linkedin">
+            <a href="https://www.linkedin.com/in/jonathanzliu/" target="_blank">
+              <!-- <svg width="24" height="24">
+                <image width="24" height="24" xlinkHref="" />
+              </svg> -->
+              <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+            </a>
+          </li>
+
+          <li class="website">
+            <a href="#">
+              <i class="fa fa-user-circle" aria-hidden="true"></i>
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="title">
+        <h1>Synesthesia</h1>
+      </div>
+      <div class="nav-option">
+        <input id="vis-check" type="checkbox" name="vis-menu" />
+        <label for="vis-check">Visualizations</label>
+
+        <ul class="menu">
+          <li class="vis-type">Type 1</li>
+          <li class="vis-type">Type 2</li>
+          <li class="vis-type">Type 3</li>
+        </ul>
+      </div>
+
+      <div class="nav-option">
+        <input id="music-check" type="checkbox" name="music-menu" />
+        <label for="music-check">Music</label>
+
+        <ul class="menu">
+          <li>
+            <span class="track">Instrumental #4</span>
+            <span class="artist">Reasoner</span>
+          </li>
+          <li>
+            <span class="track">Chaoz Fantasy</span>
+            <span class="artist">ParagonX9</span>
+          </li>
+          <li>
+            <span class="track">Swan Lake, Op.20 Suite - Scene</span>
+            <span class="artist">Peter Ilyich Tchaikovsky</span>
+          </li>
+          <li>
+            Choose a file
+          </li>
+        </ul>
+      </div>
+      <div id="question">
+        <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+      </div>
+    </nav>
+
+
+
+    <div class="controls-bar">
+      <div class="controls">
+
+      </div>
+
+      <div class="progress">
+
+      </div>
+    </div>
+  </body>
+</html>
