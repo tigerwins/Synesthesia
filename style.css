@@ -188,6 +188,13 @@ div#question:hover {
   transition: 0.3s;
 }
 
+/* Music file upload */
+
+.audio-input {
+  display: none;
+}
+
+
 /* Audio Controls */
 
  div.audio-controls {
@@ -202,7 +209,8 @@ div#question:hover {
 
  div.buttons {
    display: flex;
-   justify-content: center;
+   justify-content: flex-start;
+   
  }
 
 
