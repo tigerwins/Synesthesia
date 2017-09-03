@@ -1,0 +1,26 @@
+{
+  "name": "Synesthesia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.15.4",
+    "http-server": "^0.10.0",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tigerwins/Synesthesia.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tigerwins/Synesthesia/issues"
+  },
+  "homepage": "https://github.com/tigerwins/Synesthesia#readme"
+}
