@@ -52,6 +52,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // visualizer selection
+  let display;
+  document.querySelector(".bars").onclick = () => {
+    display = "bars";
+  };
+  document.querySelector(".rings").onclick = () => {
+    display = "rings";
+  };
+  document.querySelector(".fountain").onclick = () => {
+    display = "fountain";
+  };
+
+
+
+
+
   requestAnimationFrame(visualizer.animate);
 });
 
@@ -211,38 +227,42 @@ class Visualizer {
     const scene = new THREE.Scene();
 
     // setup BLUE LINES TEST
-    const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
-    const geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
-    geometry.vertices.push(new THREE.Vector3(0, 10, 0));
-    geometry.vertices.push(new THREE.Vector3(10, 0, 0));
-    // note that the line is not closed
+    // const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+    // const geometry = new THREE.Geometry();
+    // geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
+    // geometry.vertices.push(new THREE.Vector3(0, 10, 0));
+    // geometry.vertices.push(new THREE.Vector3(10, 0, 0));
+    // // note that the line is not closed
+    //
+    // const line = new THREE.Line(geometry, material);
+    // scene.add(line);
+    // let group = new THREE.Group();
+    // scene.add(group);
+    // group.add(line);
 
-    const line = new THREE.Line(geometry, material);
-    scene.add(line);
 
     // setup PARTICLE TEST
     const particleCount = 1800;
     this.particleCount = particleCount;
     const particles = new THREE.Geometry();
     let pMaterial;
+    let textureArr = [];
 
     const loader = new THREE.TextureLoader();
-    loader.load("images/particle.png", (texture) => {
-      this.pMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 15,
-        // adding glowing particle image texture to each particle
-        // using additive blending--need transparent to be true
-        map: texture,
-        blending: THREE.AdditiveBlending,
-        transparent: true
-      });
+    const texture = loader.load("images/particle.png");
 
-      // pMaterial.color.setHex(0xffffff);
+    pMaterial = new THREE.PointsMaterial({
+      // color: 0xa8a9f0,
+      color: 0xffffff,
+      size: 5,
+      // adding glowing particle image texture to each particle
+      // using additive blending--need transparent to be true
+      map: texture,
+      blending: THREE.AdditiveBlending,
+      transparent: true
     });
 
-    debugger
+
     // create individual particles
     for (let i = 0; i < particleCount; i++) {
       let pX = Math.random() * 500 - 250;
@@ -277,7 +297,7 @@ class Visualizer {
 
   animate() {
     const { particleSystem, particleCount, particles } = this;
-    particleSystem.rotation.y += 0.03;
+    particleSystem.rotation.y += 0.02;
 
     let pCount = particleCount;
     // debugger;
