@@ -19,15 +19,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelector(".instrumental").onclick = () => {
     // const audio = new Audio("music/instrumental-4.mp3");
-    visualizer.loadAndPlaySample("music/instrumental-4.mp3");
+    visualizer.loadAndPlaySample(visualizer.instrumentalUrl);
   };
   document.querySelector(".chaoz").onclick = () => {
     // const audio = new Audio("music/chaoz-fantasy.mp3");
-    visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
+    visualizer.loadAndPlaySample(visualizer.chaozUrl);
   };
   document.querySelector(".swan-lake").onclick = () => {
     // const audio = new Audio("music/scene.mp3");
-    visualizer.loadAndPlaySample("music/scene.mp3");
+    visualizer.loadAndPlaySample(visualizer.sceneUrl);
+  };
+
+  document.querySelector(".fa-play").onclick = () => {
+    if (visualizer.source) {
+      visualizer.resume();
+    }
+  };
+
+  document.querySelector(".fa-pause").onclick = () => {
+    if (visualizer.source) {
+      visualizer.pause();
+    }
+  };
+
+  document.querySelector(".fa-stop").onclick = () => {
+    if (visualizer.source) {
+      visualizer.stop();
+    }
   };
 });
 
@@ -40,12 +58,15 @@ class Visualizer {
     this.sceneUrl = "music/scene.mp3";
     this.source;
     this.currentFile;
+    this.playbackText;
+    this.container = document.getElementById("container");
 
 
     // three.js variables
     this.scene;
     this.renderer;
     this.camera;
+    this.display;
     // this.OrbitControls;
     this.animation;
   }
@@ -58,41 +79,54 @@ class Visualizer {
     window.cancelAnimationFrame =
       window.cancelAnimationFrame ||
       window.webkitCancelAnimationFrame;
-    window.AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
+    // window.AudioContext =
+      // window.AudioContext ||
+      // window.webkitAudioContext;
 
     // create new audio context for app
-    this.audioContext = new window.AudioContext();
+    // this.audioContext = new window.AudioContext();
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    this.setupRendering();
   }
 
   loadAndPlaySample(url) {
-    // debugger
-    const xhr = new XMLHttpRequest();
+    const request = new XMLHttpRequest();
+    // current readyState "UNSENT"
     this.currentFile = url.slice(6);
     console.log(this.currentFile);
 
-    xhr.open("GET", url, true);
-    xhr.responseType = "arraybuffer";
+    // opens an HTTP request, readyState "OPENED"
+    request.open("GET", url);
 
-    xhr.onload = () => {
-      // debugger
-      this.play(xhr.response);
+    // audio data will be returned as an ArrayBuffer object
+    request.responseType = "arraybuffer";
+
+    // buffer with audio data plays when request successfully finishes
+    request.onload = () => {
+      // readyState "DONE"
+      this.play(request.response);
     };
 
-    xhr.send();
+    // returns as soon as request is sent (asynchronous)
+    // readyState "HEADERS_RECEIVED"
+    request.send();
+
+    // request proceeds to download, readyState "LOADING"
   }
 
   play(audio) {
-    this.audioContext.decodeAudioData(audio, (buffer) => {
+    this.audioContext.decodeAudioData(audio).then((buffer) => {
+      console.log(buffer);
       this.visualize(buffer);
     });
   }
 
   visualize(buffer) {
-    // debugger
     const audioCtx = this.audioContext;
     const analyzer = audioCtx.createAnalyser();
+    // analyzer.smoothingTimeConstant = 0.1;
+    // analyzer.fftSize = 1024;
     let sourceNode = audioCtx.createBufferSource();
 
     // connect source to analyzer and
@@ -114,11 +148,70 @@ class Visualizer {
     }
   }
 
-  setup() {
+  // playback controls
+  resume() {
+    if (this.audioContext && this.audioContext.state === "suspended") {
+      this.audioContext.resume();
+      this.playbackText = "Playing";
+    }
+  }
+
+  pause() {
+    if (this.audioContext && this.audioContext.state === "running") {
+      this.audioContext.suspend();
+      this.playbackText = "Paused";
+    }
+  }
+
+  stop() {
+    if (this.audioContext) {
+      this.source.stop(0);
+      this.resume();
+    }
+  }
+
+  // visualization
+  setupRendering() {
+    const VIEW_ANGLE = 45;
     const WIDTH = window.innerWidth;
     const HEIGHT = window.innerHeight;
+    const ASPECT = WIDTH / HEIGHT;
+    const NEAR = 0.1;
+    const FAR = 1000;
+
+    const axes = new THREE.AxisHelper(20); // shows 3D axes in render
+
+    // setup renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(WIDTH, HEIGHT);
+    this.container.appendChild(renderer);
+
+    //setup camera
+    const camera = new THREE.PerspectiveCamera(
+      VIEW_ANGLE, ASPECT, NEAR, FAR
+    );
+    camera.position.set(0, 0, 100);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // setup scene
+    const scene = new THREE.Scene();
+
+
+
+
+
+
+
+    this.scene = scene;
+    this.renderer = renderer;
+    this.camera = camera;
+
+    // probably need some switch statement to handle the different types of visualizations
 
   }
+
+
+
 
 
 

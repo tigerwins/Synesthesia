@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   question.addEventListener("click", () => {
     modal.classList.remove("hidden");
   });
-  
+
   // 3D rendering
   const WIDTH = window.innerWidth;
   const HEIGHT = window.innerHeight;
