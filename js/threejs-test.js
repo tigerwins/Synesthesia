@@ -18,19 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
   visualizer.init();
 
   document.querySelector(".instrumental").onclick = () => {
-    // const audio = new Audio("music/instrumental-4.mp3");
     visualizer.loadAndPlaySample("music/instrumental-4.mp3");
   };
   document.querySelector(".chaoz").onclick = () => {
-    // const audio = new Audio("music/chaoz-fantasy.mp3");
     visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
   };
   document.querySelector(".baba-yetu").onclick = () => {
-    // const audio = new Audio("music/chaoz-fantasy.mp3");
     visualizer.loadAndPlaySample("music/baba-yetu.mp3");
   };
   document.querySelector(".swan-lake").onclick = () => {
-    // const audio = new Audio("music/scene.mp3");
     visualizer.loadAndPlaySample("music/scene.mp3");
   };
 
@@ -55,17 +51,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // visualizer selection
   let display;
   document.querySelector(".bars").onclick = () => {
-    display = "bars";
+    visualizer.display = "bars";
   };
   document.querySelector(".rings").onclick = () => {
-    display = "rings";
+    visualizer.display = "rings";
   };
   document.querySelector(".fountain").onclick = () => {
-    display = "fountain";
+    visualizer.display = "fountain";
   };
-
-
-
 
 
   requestAnimationFrame(visualizer.animate);
@@ -85,7 +78,7 @@ class Visualizer {
     this.scene;
     this.renderer;
     this.camera;
-    this.display;
+    this.display = "lights";
     // this.OrbitControls;
 
     // rendering variables
@@ -95,6 +88,9 @@ class Visualizer {
     this.pMaterial;
     this.particles;
     this.animation;
+
+    // bind functions
+    this.changeDisplay = this.changeDisplay.bind(this);
   }
 
 
@@ -216,7 +212,7 @@ class Visualizer {
     const camera = new THREE.PerspectiveCamera(
       VIEW_ANGLE, ASPECT, NEAR, FAR
     );
-    camera.position.set(0, 0, 250);
+    camera.position.set(0, 0, 150);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     // setup scene
@@ -261,11 +257,12 @@ class Visualizer {
 
     // create individual particles
     for (let i = 0; i < particleCount; i++) {
-      let pX = Math.random() * 500 - 250;
-      let pY = Math.random() * 500 - 250;
-      let pZ = Math.random() * 500 - 250;
+      let pX = Math.random() * 400 - 200;
+      // let pY = Math.random() * 400 - 200;
+      let pY = Math.random() * 150 + 150;
+      let pZ = Math.random() * 300 - 150;
       let particle = new THREE.Vector3(pX, pY, pZ);
-      particle.velocity = new THREE.Vector3(0, -Math.random() * 0.1, 0);
+      particle.velocity = new THREE.Vector3(0, -Math.random(), 0);
 
       // add particle to geometry
       particles.vertices.push(particle);
@@ -294,27 +291,49 @@ class Visualizer {
   animate() {
     const { particleSystem, particleCount, particles } = this;
     particleSystem.rotation.y += 0.02;
-
     let pCount = particleCount;
-    // debugger;
 
     while (pCount--) {
       let particle = particles.vertices[pCount];
-      if (particle.y < -200) {
-        particle.y = 200;
-        particle.velocity.y = 0;
+      if (this.display === "lights" && particle.y < -100) {
+        particle.y = 100;
+        particle.velocity.y = -Math.random() * 0.5;
+      } else if (this.display !== "lights") {
+        particle.velocity.y -= Math.random() * 0.1;
       }
 
       particle.velocity.y -= Math.random() * 0.01;
       particle.add(particle.velocity);
     }
 
+
     // flags to the particle system that we've changed the vertices
     particleSystem.geometry.verticesNeedUpdate = true;
 
     this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(this.animate);
+
+    if (particleSystem && particles.vertices.every((particle) => {
+      return particle.y < -150;
+    })) {
+      particleSystem.geometry.dispose();
+      this.particleSystem = null;
+      this.particles = null;
+      this.particleCount = 0;
+    }
+
+    // if (this.display === "lights") {
+    if (this.particleSystem){
+      requestAnimationFrame(this.animate);
+    }
+    // } else {
+      // requestAnimationFrame(this.changeDisplay);
+    // }
   }
+
+  changeDisplay(displayType) {
+    this.display = displayType;
+  }
+
 
 
 
