@@ -25,6 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // const audio = new Audio("music/chaoz-fantasy.mp3");
     visualizer.loadAndPlaySample(visualizer.chaozUrl);
   };
+  document.querySelector(".baba-yetu").onclick = () => {
+    // const audio = new Audio("music/chaoz-fantasy.mp3");
+    visualizer.loadAndPlaySample(visualizer.civUrl);
+  };
   document.querySelector(".swan-lake").onclick = () => {
     // const audio = new Audio("music/scene.mp3");
     visualizer.loadAndPlaySample(visualizer.sceneUrl);
@@ -47,6 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
       visualizer.stop();
     }
   };
+
+  requestAnimationFrame(visualizer.animate);
 });
 
 class Visualizer {
@@ -55,6 +61,7 @@ class Visualizer {
     this.audioContext;
     this.instrumentalUrl = "music/instrumental-4.mp3";
     this.chaozUrl = "music/chaoz-fantasy.mp3";
+    this.civUrl = "music/baba-yetu.mp3";
     this.sceneUrl = "music/scene.mp3";
     this.source;
     this.currentFile;
@@ -62,12 +69,19 @@ class Visualizer {
     this.container = document.getElementById("container");
 
 
-    // three.js variables
+    // three.js setup
     this.scene;
     this.renderer;
     this.camera;
     this.display;
     // this.OrbitControls;
+
+    // rendering variables
+    this.animate = this.animate.bind(this);
+    this.particleSystem;
+    this.particleCount;
+    this.pMaterial;
+    this.particles;
     this.animation;
   }
 
@@ -190,13 +204,13 @@ class Visualizer {
     const camera = new THREE.PerspectiveCamera(
       VIEW_ANGLE, ASPECT, NEAR, FAR
     );
-    camera.position.set(0, 0, 100);
+    camera.position.set(0, 0, 250);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     // setup scene
     const scene = new THREE.Scene();
 
-    // setup lines
+    // setup BLUE LINES TEST
     const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
     const geometry = new THREE.Geometry();
     geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
@@ -205,16 +219,53 @@ class Visualizer {
     // note that the line is not closed
 
     const line = new THREE.Line(geometry, material);
+    scene.add(line);
 
-    scene.add(line)
+    // setup PARTICLE TEST
+    const particleCount = 1800;
+    this.particleCount = particleCount;
+    const particles = new THREE.Geometry();
+    let pMaterial;
+
+    const loader = new THREE.TextureLoader();
+    loader.load("images/particle.png", (texture) => {
+      this.pMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 15,
+        // adding glowing particle image texture to each particle
+        // using additive blending--need transparent to be true
+        map: texture,
+        blending: THREE.AdditiveBlending,
+        transparent: true
+      });
+
+      // pMaterial.color.setHex(0xffffff);
+    });
+
+    debugger
+    // create individual particles
+    for (let i = 0; i < particleCount; i++) {
+      let pX = Math.random() * 500 - 250;
+      let pY = Math.random() * 500 - 250;
+      let pZ = Math.random() * 500 - 250;
+      let particle = new THREE.Vector3(pX, pY, pZ);
+      particle.velocity = new THREE.Vector3(0, -Math.random() * 0.1, 0);
+
+      // add particle to geometry
+      particles.vertices.push(particle);
+    }
+
+    this.particles = particles;
+    // create particle system
+    this.particleSystem = new THREE.Points(
+      particles, pMaterial);
+    // update particle system to sort particles
+    this.particleSystem.sortParticles = true;
+
+    scene.add(this.particleSystem);
+
+
     renderer.render(scene, camera);
-
-
-
-
-
-
-
 
 
     this.scene = scene;
@@ -222,7 +273,31 @@ class Visualizer {
     this.camera = camera;
 
     // probably need some switch statement to handle the different types of visualizations
+  }
 
+  animate() {
+    const { particleSystem, particleCount, particles } = this;
+    particleSystem.rotation.y += 0.03;
+
+    let pCount = particleCount;
+    // debugger;
+
+    while (pCount--) {
+      let particle = particles.vertices[pCount];
+      if (particle.y < -200) {
+        particle.y = 200;
+        particle.velocity.y = 0;
+      }
+
+      particle.velocity.y -= Math.random() * 0.01;
+      particle.add(particle.velocity);
+    }
+
+    // flags to the particle system that we've changed the vertices
+    particleSystem.geometry.verticesNeedUpdate = true;
+
+    this.renderer.render(this.scene, this.camera);
+    requestAnimationFrame(this.animate);
   }
 
 
