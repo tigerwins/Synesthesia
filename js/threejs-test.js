@@ -23,9 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".chaoz").onclick = () => {
     visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
   };
-  document.querySelector(".baba-yetu").onclick = () => {
-    visualizer.loadAndPlaySample("music/baba-yetu.mp3");
-  };
   document.querySelector(".swan-lake").onclick = () => {
     visualizer.loadAndPlaySample("music/scene.mp3");
   };
@@ -53,8 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".bars").onclick = () => {
     visualizer.display = "bars";
   };
-  document.querySelector(".rings").onclick = () => {
-    visualizer.display = "rings";
+  document.querySelector(".helix").onclick = () => {
+    visualizer.display = "helix";
   };
   document.querySelector(".fountain").onclick = () => {
     visualizer.display = "fountain";
@@ -73,7 +70,6 @@ class Visualizer {
     this.playbackText;
     this.container = document.getElementById("container");
 
-
     // three.js setup
     this.scene;
     this.renderer;
@@ -90,7 +86,7 @@ class Visualizer {
     this.animation;
 
     // bind functions
-    this.changeDisplay = this.changeDisplay.bind(this);
+    // this.changeDisplay = this.changeDisplay.bind(this);
   }
 
 
@@ -277,6 +273,16 @@ class Visualizer {
 
     scene.add(this.particleSystem);
 
+    // test lighting
+    const spotLight = new THREE.SpotLight(0xff0000);
+    spotLight.position.set(0, 50, 50);
+    scene.add(spotLight);
+    const ambientLight = new THREE.AmbientLight(0x0c0c0c);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    directionalLight.castShadow = true;
+    directionalLight.position.set(0, 50, 50);
+    scene.add(directionalLight);
 
     renderer.render(scene, camera);
 
@@ -284,6 +290,7 @@ class Visualizer {
     this.scene = scene;
     this.renderer = renderer;
     this.camera = camera;
+
 
     // probably need some switch statement to handle the different types of visualizations
   }
@@ -330,10 +337,14 @@ class Visualizer {
     // }
   }
 
-  changeDisplay(displayType) {
-    this.display = displayType;
+  animateBars() {
+    const ambientLight = new THREE.AmbientLight(0x0c0c0c);
+    this.scene.add(ambientLight);
   }
 
+  animateHelix() {
+
+  }
 
 
 
