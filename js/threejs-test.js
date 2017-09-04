@@ -19,19 +19,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelector(".instrumental").onclick = () => {
     // const audio = new Audio("music/instrumental-4.mp3");
-    visualizer.loadAndPlaySample(visualizer.instrumentalUrl);
+    visualizer.loadAndPlaySample("music/instrumental-4.mp3");
   };
   document.querySelector(".chaoz").onclick = () => {
     // const audio = new Audio("music/chaoz-fantasy.mp3");
-    visualizer.loadAndPlaySample(visualizer.chaozUrl);
+    visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
   };
   document.querySelector(".baba-yetu").onclick = () => {
     // const audio = new Audio("music/chaoz-fantasy.mp3");
-    visualizer.loadAndPlaySample(visualizer.civUrl);
+    visualizer.loadAndPlaySample("music/baba-yetu.mp3");
   };
   document.querySelector(".swan-lake").onclick = () => {
     // const audio = new Audio("music/scene.mp3");
-    visualizer.loadAndPlaySample(visualizer.sceneUrl);
+    visualizer.loadAndPlaySample("music/scene.mp3");
   };
 
   document.querySelector(".fa-play").onclick = () => {
@@ -75,10 +75,6 @@ class Visualizer {
   constructor() {
     // Web Audio API variables
     this.audioContext;
-    this.instrumentalUrl = "music/instrumental-4.mp3";
-    this.chaozUrl = "music/chaoz-fantasy.mp3";
-    this.civUrl = "music/baba-yetu.mp3";
-    this.sceneUrl = "music/scene.mp3";
     this.source;
     this.currentFile;
     this.playbackText;
