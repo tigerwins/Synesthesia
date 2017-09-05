@@ -55,7 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // requestAnimationFrame(visualizer.animate);
   };
   document.querySelector(".bars").onclick = () => {
-    visualizer.display = "bars";
+    // visualizer.display = "bars";
+    visualizer.addBars();
   };
   document.querySelector(".helix").onclick = () => {
     visualizer.display = "helix";
@@ -86,11 +87,16 @@ class Visualizer {
 
     // rendering variables
     this.animate = this.animate.bind(this);
+    this.addBars = this.addBars.bind(this);
+    // this.animateBars = this.animateBars.bind(this);
     this.particleSystem;
     this.particleCount;
     this.pMaterial;
     this.particles;
     this.animation;
+
+    // bar animation variables
+    this.numBars = 45;
 
     // bind functions
     // this.changeDisplay = this.changeDisplay.bind(this);
@@ -154,6 +160,8 @@ class Visualizer {
     sourceNode.connect(analyzer);
     analyzer.connect(audioCtx.destination);
     sourceNode.buffer = buffer;
+
+    this.analyzer = analyzer;
 
     // stop previous song if currently playing
     if (this.source) {
@@ -287,9 +295,7 @@ class Visualizer {
     this.scene.add(this.particleSystem);
 
     // test lighting
-    // const spotLight = new THREE.SpotLight(0xff0000);
-    // spotLight.position.set(0, 50, 50);
-    // scene.add(spotLight);
+
     // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
     // scene.add(ambientLight);
     // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
@@ -350,9 +356,105 @@ class Visualizer {
     // }
   }
 
+  addBars() {
+    this.display = "bars";
+    // this.scene.add(ambientLight);
+    const { scene, camera, renderer} = this;
+    renderer.shadowMap.enabled = true;
+
+    // Setup plane for bars to stand on ?
+    const planeGeometry = new THREE.PlaneGeometry(500, 500);
+    const planeMaterial = new THREE.MeshPhongMaterial({
+      color: 0x222222,
+      // ambient: 0x555555,
+      specular: 0xdddddd,
+      shininess: 5,
+      reflectivity: 2
+    });
+
+    planeMaterial.side = THREE.DoubleSide;
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = -0.5 * Math.PI;
+    plane.position.x = 0;
+    plane.position.y = -40;
+    plane.position.z = 0;
+    plane.receiveShadow = true;
+    scene.add(plane);
+
+    // setup bars
+    // BoxGeometry(width, )
+    const cubeGeometry = new THREE.BoxGeometry(2, 1, 1);
+    const cubeMaterial = new THREE.MeshPhongMaterial({
+      // color: 0x01FF00,
+      color: 0x00D4FF,
+      // ambient: 0x01FF00,
+      specular: 0x01FF00,
+      shininess: 20,
+      reflectivity: 5.5
+    });
+
+    for (let i = 0; i < this.numBars; i++) {
+      let bar = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      bar.position.x = 40 * Math.sin(i * 9);
+      bar.position.y = -40;
+      bar.position.z = 40 * Math.cos(i * 9);
+      bar.castShadow = true; // might not be necessary for now
+      bar.name = 'bar' + i;
+      scene.add(bar);
+    }
+
+    // camera.position.x = 0;
+    // camera.position.y += 45;
+    // camera.position.z = 0;
+    camera.lookAt(scene.position); // unsure how position is calculated
+    // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
+    // scene.add(ambientLight);
+
+    // spotlight and directional light stuff, maybe
+    const spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(45, 45, 45);
+    spotLight.angle = Math.PI / 4;
+    spotLight.penumbra = 0.05;
+    spotLight.lookAt(0, -40, 0);
+    scene.add(spotLight);
+    // scene.add(spotLight.target);
+    const helper = new THREE.SpotLightHelper(spotLight);
+    scene.add(helper);
+
+    this.animateBars();
+  }
+
   animateBars() {
-    const ambientLight = new THREE.AmbientLight(0x0c0c0c);
-    this.scene.add(ambientLight);
+    const { scene, renderer, camera, analyzer, numBars } = this;
+    const renderAnimation = () => {
+
+      if (analyzer) {
+        // retrieve data from the frequency data from analyzer
+        const bufferLength = analyzer.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyzer.getByteFrequencyData(dataArray);
+
+        // change bar height
+        const freqInterval = Math.round(dataArray.length / numBars);
+        for (let i = 0; i < numBars; i++) {
+          let value = dataArray[i * freqInterval]; // why /4 ?
+          value = value < 1 ? 1 : value; // it gets mad if value < 1
+          // below might need true as a second arg
+          let bar = scene.getObjectByName("bar" + i, true);
+          // debugger
+          bar.scale.y = value;
+        }
+      }
+
+      renderer.render(scene, camera);
+      this.animation = requestAnimationFrame(renderAnimation);
+    };
+
+    this.animation = requestAnimationFrame(renderAnimation);
+  }
+
+  addHelix() {
+
   }
 
   animateHelix() {
