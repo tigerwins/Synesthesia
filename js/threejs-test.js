@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".reset").onclick = () => {
   };
   document.querySelector(".bars").onclick = () => {
-    // visualizer.display = "bars";
     visualizer.addBars();
   };
   document.querySelector(".helix").onclick = () => {
@@ -81,13 +80,11 @@ class Visualizer {
     this.renderer;
     this.camera;
     this.display = "lights";
-    // this.OrbitControls;
 
     // rendering variables
     this.update = this.update.bind(this);
     this.animateLights = this.animateLights.bind(this);
     this.addBars = this.addBars.bind(this);
-    // this.animateBars = this.animateBars.bind(this);
     this.particleSystem;
     this.particleCount;
     this.pMaterial;
@@ -98,8 +95,6 @@ class Visualizer {
     // bar animation variables
     this.numBars = 60;
 
-    // bind functions
-    // this.changeDisplay = this.changeDisplay.bind(this);
   }
 
 
@@ -153,7 +148,6 @@ class Visualizer {
   visualize(buffer) {
     const audioCtx = this.audioContext;
     const analyzer = audioCtx.createAnalyser();
-    // analyzer.smoothingTimeConstant = 0.1;
     // analyzer.fftSize = 2048;
     let sourceNode = audioCtx.createBufferSource();
 
@@ -200,7 +194,7 @@ class Visualizer {
     }
   }
 
-  // visualization
+  // setup camera, scene, renderer
   setupRendering() {
     const VIEW_ANGLE = 45;
     const WIDTH = window.innerWidth;
@@ -209,21 +203,18 @@ class Visualizer {
     const NEAR = 0.1;
     const FAR = 1000;
 
-    const axes = new THREE.AxisHelper(20); // shows 3D axes in render
+    // const axes = new THREE.AxisHelper(20);
 
-    // setup renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(WIDTH, HEIGHT);
     this.container.appendChild(renderer.domElement);
 
-    //setup camera
     const camera = new THREE.PerspectiveCamera(
       VIEW_ANGLE, ASPECT, NEAR, FAR
     );
     camera.position.set(0, 0, 150);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    // setup scene
     const scene = new THREE.Scene();
 
     renderer.render(scene, camera);
@@ -243,7 +234,6 @@ class Visualizer {
     // geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
     // geometry.vertices.push(new THREE.Vector3(0, 10, 0));
     // geometry.vertices.push(new THREE.Vector3(10, 0, 0));
-    // // note that the line is not closed
     //
     // const line = new THREE.Line(geometry, material);
     // scene.add(line);
@@ -252,7 +242,7 @@ class Visualizer {
     // group.add(line);
 
 
-    // setup PARTICLE TEST
+    // setup particles
     const particleCount = 1800;
     this.particleCount = particleCount;
     const particles = new THREE.Geometry();
@@ -267,7 +257,7 @@ class Visualizer {
       color: 0xffffff,
       size: 5,
       // adding glowing particle image texture to each particle
-      // using additive blending--need transparent to be true
+      // additive blending needs transparent to be true
       map: texture,
       blending: THREE.AdditiveBlending,
       transparent: true
@@ -277,7 +267,6 @@ class Visualizer {
     // create individual particles
     for (let i = 0; i < particleCount; i++) {
       let pX = Math.random() * 400 - 200;
-      // let pY = Math.random() * 400 - 200;
       let pY = Math.random() * 150 + 150;
       let pZ = Math.random() * 300 - 150;
       let particle = new THREE.Vector3(pX, pY, pZ);
@@ -356,26 +345,20 @@ class Visualizer {
       this.particleCount = 0;
     }
 
-    // if (this.display === "lights") {
     if (this.particleSystem){
       requestAnimationFrame(this.animateLights);
     }
-    // } else {
-      // requestAnimationFrame(this.changeDisplay);
-    // }
   }
 
   addBars() {
     this.display = "bars";
-    // this.scene.add(ambientLight);
     const { scene, camera, renderer} = this;
     renderer.shadowMap.enabled = true;
 
-    // Setup plane for bars to stand on ?
+    // Setup plane for bars to stand on
     const planeGeometry = new THREE.PlaneGeometry(500, 500);
     const planeMaterial = new THREE.MeshPhongMaterial({
       color: 0x222222,
-      // ambient: 0x555555,
       specular: 0xdddddd,
       shininess: 5,
       reflectivity: 2
@@ -391,12 +374,9 @@ class Visualizer {
     scene.add(plane);
 
     // setup bars
-    // BoxGeometry(width, )
     const cubeGeometry = new THREE.BoxGeometry(2, 1, 1);
     const cubeMaterial = new THREE.MeshPhongMaterial({
-      // color: 0x01FF00,
       color: 0x00D4FF,
-      // ambient: 0x01FF00,
       specular: 0x01FF00,
       shininess: 20,
       reflectivity: 5.5
@@ -404,6 +384,8 @@ class Visualizer {
 
     for (let i = 0; i < this.numBars; i++) {
       let bar = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+      // Trig functions take radians
       bar.position.x = 40 * Math.sin(i * 2 * Math.PI / this.numBars);
       bar.position.y = -40;
       bar.position.z = 40 * Math.cos(i * 2 * Math.PI / this.numBars);
@@ -438,22 +420,16 @@ class Visualizer {
     //   camera.position.y = position.y;
     // });
     // tween.start();
-    camera.position.y += 45;
-    // camera.position.z = 0;
-    camera.lookAt(scene.position); // unsure how position is calculated
-    // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
-    // scene.add(ambientLight);
 
-    // spotlight and directional light stuff, maybe
+    camera.position.y += 45;
+    camera.lookAt(scene.position);
+
     const spotLight = new THREE.SpotLight(0xffffff);
     spotLight.position.set(45, 45, 45);
     spotLight.angle = Math.PI / 4;
     spotLight.penumbra = 0.05;
     spotLight.lookAt(0, -40, 0);
     scene.add(spotLight);
-
-    const helper = new THREE.SpotLightHelper(spotLight);
-    scene.add(helper);
 
     this.animateBars();
   }
@@ -474,11 +450,9 @@ class Visualizer {
         // change bar height
         const freqInterval = Math.round(dataArray.length / numBars);
         for (let i = 0; i < numBars; i++) {
-          let value = dataArray[i * freqInterval]; // why /4 ?
+          let value = dataArray[i * freqInterval];
           value = value < 1 ? 1 : value; // it gets mad if value < 1
-          // below might need true as a second arg
-          let bar = scene.getObjectByName("bar" + i, true);
-          // debugger
+          let bar = scene.getObjectByName("bar" + i);
           bar.scale.y = value;
         }
       }
