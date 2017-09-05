@@ -97,7 +97,7 @@ class Visualizer {
     this.tween;
 
     // bar animation variables
-    this.numBars = 45;
+    this.numBars = 60;
 
     // bind functions
     // this.changeDisplay = this.changeDisplay.bind(this);
@@ -142,6 +142,8 @@ class Visualizer {
     // request proceeds to download, readyState "LOADING"
   }
 
+  setupAudio() {}
+
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
       console.log(buffer);
@@ -153,7 +155,7 @@ class Visualizer {
     const audioCtx = this.audioContext;
     const analyzer = audioCtx.createAnalyser();
     // analyzer.smoothingTimeConstant = 0.1;
-    // analyzer.fftSize = 1024;
+    // analyzer.fftSize = 2048;
     let sourceNode = audioCtx.createBufferSource();
 
     // connect source to analyzer and
@@ -396,33 +398,33 @@ class Visualizer {
 
     for (let i = 0; i < this.numBars; i++) {
       let bar = new THREE.Mesh(cubeGeometry, cubeMaterial);
-      bar.position.x = 40 * Math.sin(i * 9);
+      bar.position.x = 40 * Math.sin(i * 2 * Math.PI / this.numBars);
       bar.position.y = -40;
-      bar.position.z = 40 * Math.cos(i * 9);
+      bar.position.z = 40 * Math.cos(i * 2 * Math.PI / this.numBars);
       bar.castShadow = true; // might not be necessary for now
-      bar.name = 'bar' + i;
+      bar.name = "bar" + i;
       scene.add(bar);
     }
 
-    const position = {
-      x: camera.position.x,
-      y: camera.position.y,
-      z: camera.position.z
-    };
-    const target = { x: 0, y: 45, z: 150 };
-    const tween = new TWEEN.Tween(position)
-      .to(target, 2000)
-      .easing(TWEEN.Easing.Linear.None)
-      .onUpdate(function() {
-        camera.position.set(this.x, this.y, this.z);
-        camera.lookAt(new THREE.Vector3(0, -40, 0));
-      })
-      .onComplete(function() {
-        camera.lookAt(new THREE.Vector3(0, -40, 0));
-      })
-      .start();
-
-    this.tween = tween;
+    // const position = {
+    //   x: camera.position.x,
+    //   y: camera.position.y,
+    //   z: camera.position.z
+    // };
+    // const target = { x: 0, y: 45, z: 150 };
+    // const tween = new TWEEN.Tween(position)
+    //   .to(target, 2000)
+    //   .easing(TWEEN.Easing.Linear.None)
+    //   .onUpdate(function() {
+    //     camera.position.set(this.x, this.y, this.z);
+    //     camera.lookAt(new THREE.Vector3(0, -40, 0));
+    //   })
+    //   .onComplete(function() {
+    //     camera.lookAt(new THREE.Vector3(0, -40, 0));
+    //   })
+    //   .start();
+    //
+    // this.tween = tween;
 
     // camera.position.set(0, 45, 150);
     // camera.lookAt(new THREE.Vector3(0, -40, 0));
@@ -430,9 +432,9 @@ class Visualizer {
     //   camera.position.y = position.y;
     // });
     // tween.start();
-    // camera.position.y += 45;
+    camera.position.y += 45;
     // camera.position.z = 0;
-    // camera.lookAt(scene.position); // unsure how position is calculated
+    camera.lookAt(scene.position); // unsure how position is calculated
     // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
     // scene.add(ambientLight);
 
@@ -443,7 +445,7 @@ class Visualizer {
     spotLight.penumbra = 0.05;
     spotLight.lookAt(0, -40, 0);
     scene.add(spotLight);
-    // scene.add(spotLight.target);
+
     const helper = new THREE.SpotLightHelper(spotLight);
     scene.add(helper);
 
