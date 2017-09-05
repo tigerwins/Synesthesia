@@ -17,11 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const visualizer = new Visualizer();
   visualizer.init();
 
-  document.querySelector(".instrumental").onclick = () => {
-    visualizer.loadAndPlaySample("music/instrumental-4.mp3");
-  };
   document.querySelector(".chaoz").onclick = () => {
     visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
+  };
+  document.querySelector(".endeavours").onclick = () => {
+    visualizer.loadAndPlaySample("music/endeavours.mp3");
+  };
+  document.querySelector(".instrumental").onclick = () => {
+    visualizer.loadAndPlaySample("music/instrumental-4.mp3");
   };
   document.querySelector(".swan-lake").onclick = () => {
     visualizer.loadAndPlaySample("music/scene.mp3");
@@ -47,6 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // visualizer selection
   let display;
+  document.querySelector(".reset").onclick = () => {
+    // visualizer.animateLights();
+    // requestAnimationFrame(visualizer.animate);
+  };
   document.querySelector(".bars").onclick = () => {
     visualizer.display = "bars";
   };
@@ -97,12 +104,7 @@ class Visualizer {
     window.cancelAnimationFrame =
       window.cancelAnimationFrame ||
       window.webkitCancelAnimationFrame;
-    // window.AudioContext =
-      // window.AudioContext ||
-      // window.webkitAudioContext;
 
-    // create new audio context for app
-    // this.audioContext = new window.AudioContext();
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     this.setupRendering();
@@ -214,6 +216,17 @@ class Visualizer {
     // setup scene
     const scene = new THREE.Scene();
 
+    renderer.render(scene, camera);
+
+
+    this.scene = scene;
+    this.renderer = renderer;
+    this.camera = camera;
+    this.animateLights();
+  }
+
+  animateLights() {
+
     // setup BLUE LINES TEST
     // const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
     // const geometry = new THREE.Geometry();
@@ -258,7 +271,7 @@ class Visualizer {
       let pY = Math.random() * 150 + 150;
       let pZ = Math.random() * 300 - 150;
       let particle = new THREE.Vector3(pX, pY, pZ);
-      particle.velocity = new THREE.Vector3(0, -Math.random(), 0);
+      particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
 
       // add particle to geometry
       particles.vertices.push(particle);
@@ -271,25 +284,25 @@ class Visualizer {
     // update particle system to sort particles
     this.particleSystem.sortParticles = true;
 
-    scene.add(this.particleSystem);
+    this.scene.add(this.particleSystem);
 
     // test lighting
-    const spotLight = new THREE.SpotLight(0xff0000);
-    spotLight.position.set(0, 50, 50);
-    scene.add(spotLight);
-    const ambientLight = new THREE.AmbientLight(0x0c0c0c);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-    directionalLight.castShadow = true;
-    directionalLight.position.set(0, 50, 50);
-    scene.add(directionalLight);
+    // const spotLight = new THREE.SpotLight(0xff0000);
+    // spotLight.position.set(0, 50, 50);
+    // scene.add(spotLight);
+    // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
+    // scene.add(ambientLight);
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    // directionalLight.castShadow = true;
+    // directionalLight.position.set(0, 50, 50);
+    // scene.add(directionalLight);
 
-    renderer.render(scene, camera);
-
-
-    this.scene = scene;
-    this.renderer = renderer;
-    this.camera = camera;
+    // renderer.render(scene, camera);
+    //
+    //
+    // this.scene = scene;
+    // this.renderer = renderer;
+    // this.camera = camera;
 
 
     // probably need some switch statement to handle the different types of visualizations
