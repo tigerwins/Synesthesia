@@ -51,8 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // visualizer selection
   let display;
   document.querySelector(".reset").onclick = () => {
-    // visualizer.animateLights();
-    // requestAnimationFrame(visualizer.animate);
   };
   document.querySelector(".bars").onclick = () => {
     // visualizer.display = "bars";
@@ -66,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 
-  requestAnimationFrame(visualizer.animate);
+  visualizer.update();
 });
 
 class Visualizer {
@@ -86,7 +84,8 @@ class Visualizer {
     // this.OrbitControls;
 
     // rendering variables
-    this.animate = this.animate.bind(this);
+    this.update = this.update.bind(this);
+    this.animateLights = this.animateLights.bind(this);
     this.addBars = this.addBars.bind(this);
     // this.animateBars = this.animateBars.bind(this);
     this.particleSystem;
@@ -233,10 +232,10 @@ class Visualizer {
     this.scene = scene;
     this.renderer = renderer;
     this.camera = camera;
-    this.animateLights();
+    this.setupLights();
   }
 
-  animateLights() {
+  setupLights() {
 
     // setup BLUE LINES TEST
     // const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
@@ -317,7 +316,14 @@ class Visualizer {
     // probably need some switch statement to handle the different types of visualizations
   }
 
-  animate() {
+  update() {
+    if (this.display === "lights") {
+      this.animateLights();
+    }
+
+  }
+
+  animateLights() {
     const { particleSystem, particleCount, particles } = this;
     particleSystem.rotation.y += 0.02;
     let pCount = particleCount;
@@ -352,7 +358,7 @@ class Visualizer {
 
     // if (this.display === "lights") {
     if (this.particleSystem){
-      requestAnimationFrame(this.animate);
+      requestAnimationFrame(this.animateLights);
     }
     // } else {
       // requestAnimationFrame(this.changeDisplay);
