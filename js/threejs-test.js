@@ -94,6 +94,7 @@ class Visualizer {
     this.pMaterial;
     this.particles;
     this.animation;
+    this.tween;
 
     // bar animation variables
     this.numBars = 45;
@@ -403,10 +404,35 @@ class Visualizer {
       scene.add(bar);
     }
 
-    // camera.position.x = 0;
+    const position = {
+      x: camera.position.x,
+      y: camera.position.y,
+      z: camera.position.z
+    };
+    const target = { x: 0, y: 45, z: 150 };
+    const tween = new TWEEN.Tween(position)
+      .to(target, 2000)
+      .easing(TWEEN.Easing.Linear.None)
+      .onUpdate(function() {
+        camera.position.set(this.x, this.y, this.z);
+        camera.lookAt(new THREE.Vector3(0, -40, 0));
+      })
+      .onComplete(function() {
+        camera.lookAt(new THREE.Vector3(0, -40, 0));
+      })
+      .start();
+
+    this.tween = tween;
+
+    // camera.position.set(0, 45, 150);
+    // camera.lookAt(new THREE.Vector3(0, -40, 0));
+    // tween.onUpdate(() => {
+    //   camera.position.y = position.y;
+    // });
+    // tween.start();
     // camera.position.y += 45;
     // camera.position.z = 0;
-    camera.lookAt(scene.position); // unsure how position is calculated
+    // camera.lookAt(scene.position); // unsure how position is calculated
     // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
     // scene.add(ambientLight);
 
@@ -425,7 +451,10 @@ class Visualizer {
   }
 
   animateBars() {
-    const { scene, renderer, camera, analyzer, numBars } = this;
+    const { scene, renderer, camera, tween, analyzer, numBars } = this;
+
+    TWEEN.update();
+
     const renderAnimation = () => {
 
       if (analyzer) {
