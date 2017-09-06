@@ -15,7 +15,7 @@ class Visualizer {
     this.onWindowResize = this.onWindowResize.bind(this);
 
     // rendering variables
-    this.update = this.update.bind(this);
+    this.animate = this.animate.bind(this);
     this.animateLights = this.animateLights.bind(this);
     this.addBars = this.addBars.bind(this);
     this.particleSystem;
@@ -213,53 +213,65 @@ class Visualizer {
     // directionalLight.castShadow = true;
     // directionalLight.position.set(0, 50, 50);
     // scene.add(directionalLight);
-
-
-    // probably need some switch statement to handle the different types of visualizations
   }
 
-  fadeOutLights() {
-
-  }
+  // fadeOutLights() {
+  //   const {
+  //     particleSystem,
+  //     particleCount,
+  //     particles,
+  //     display,
+  //     renderer
+  //   } = this;
+  //
+  // }
 
   resetLights() {
-    this.display.push("lights");
-    let { particleSystem, particleCount, particles } = this;
+    const { particleSystem, particleCount, particles, display } = this;
+
+    if (display[display.length - 1] !== "lights") {
+      this.display.push("lights");
+    }
 
     // reset particles (positions and alphas)
     particleSystem.material.opacity = 1;
     for (let i = 0; i < particleCount; i++) {
+      let particle = particles.vertices[i];
       let pX = Math.random() * 400 - 200;
       let pY = Math.random() * 150 + 150;
       let pZ = Math.random() * 300 - 150;
-      particles.vertices[i] = new THREE.Vector3(pX, pY, pZ);
-      particles.vertices[i].velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
-      // particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
+      particle = new THREE.Vector3(pX, pY, pZ);
+      particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
+      particle.add(particle.velocity);
+      particles.vertices[i] = particle;
     }
 
-
-
-
+    if (!display.includes("lights")) {
+      requestAnimationFrame(this.animate);
+    }
   }
 
   animate() {
     const { display } = this;
     if (display.includes("lights")) {
       this.animateLights();
-    } else if (display[display.length - 1] !== "lights") {
-      this.fadeOutLights();
+    }
+    if (display.includes("bars")) {
+      this.animateBars();
     }
   }
 
   animateLights() {
-    const { particleSystem, particleCount, particles, display } = this;
-    particleSystem.rotation.y += 0.02;
-    let pCount = particleCount;
+    const { particleSystem, particleCount, particles, display, renderer } = this;
 
-    while (pCount--) {
-      let particle = particles.vertices[pCount];
+    particleSystem.rotation.y += 0.02;
+
+    for (let i = 0; i < particleCount; i++) {
+      let particle = particles.vertices[i];
       if (display[display.length - 1] !== "lights") {
+        // speeds up and fades out lights when visualization changes
         particle.velocity.y -= Math.random() * 0.1;
+        particleSystem.material.opacity -= 0.000001;
       } else if (display.includes("lights") && particle.y < -100) {
         particle.y = 150;
         particle.velocity.y = -Math.random() * 0.5;
@@ -269,25 +281,21 @@ class Visualizer {
       particle.add(particle.velocity);
     }
 
-
     // flags to the particle system that we've changed the vertices
     particleSystem.geometry.verticesNeedUpdate = true;
+    renderer.render(this.scene, this.camera);
 
-    this.renderer.render(this.scene, this.camera);
-
-    if (particleSystem && particles.vertices.every((particle) => {
+    // sets particle to hidden after they pass below a threshold
+    if (particles.vertices.every((particle) => {
       return particle.y < -150;
     })) {
-      particleSystem.geometry.dispose();
-      this.particleSystem = null;
-      this.particles = null;
-      this.particleCount = 0;
-      const lightsIdx = this.display.indexOf("lights");
-      this.display.splice(lightsIdx, 1);
+      particleSystem.material.opacity = 0;
+      const lightsIdx = display.indexOf("lights");
+      display.splice(lightsIdx, 1);
     }
 
-    if (this.display.includes("lights")){
-      requestAnimationFrame(this.animateLights);
+    if (display[display.length - 1] === "lights") {
+      requestAnimationFrame(this.animate);
     }
   }
 
@@ -295,6 +303,10 @@ class Visualizer {
     this.display.push("bars");
     const { scene, camera, renderer} = this;
     renderer.shadowMap.enabled = true;
+
+    const barGroup = new THREE.Group();
+    barGroup.name = "bars";
+
 
     // Setup plane for bars to stand on
     const planeGeometry = new THREE.PlaneGeometry(500, 500);
@@ -313,7 +325,7 @@ class Visualizer {
     plane.position.y = 0;
     plane.position.z = 0;
     plane.receiveShadow = true;
-    scene.add(plane);
+    barGroup.add(plane);
 
     // setup bars
     const cubeGeometry = new THREE.BoxGeometry(2, 1, 1);
@@ -326,6 +338,8 @@ class Visualizer {
 
     for (let i = 0; i < this.numBars; i++) {
       let bar = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      bar.material.opacity = 1;
+      bar.material.transparent = true;
 
       // Trig functions take radians
       bar.position.x = 40 * Math.sin(i * 2 * Math.PI / this.numBars);
@@ -333,7 +347,7 @@ class Visualizer {
       bar.position.z = 40 * Math.cos(i * 2 * Math.PI / this.numBars);
       bar.castShadow = true; // might not be necessary for now
       bar.name = "bar" + i;
-      scene.add(bar);
+      barGroup.add(bar);
     }
 
     // const position = {
@@ -363,7 +377,7 @@ class Visualizer {
     // });
     // tween.start();
 
-    camera.position.y = 200;
+    camera.position.y = 150;
     // camera.lookAt(scene.position);
     // camera.lookAt(scene.position);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -377,7 +391,8 @@ class Visualizer {
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
     pointLight.position.set(0, 50, 0);
-    scene.add(pointLight);
+    barGroup.add(pointLight);
+    scene.add(barGroup);
 
     // const ambientLight = new THREE.AmbientLight(0x074747);
     // ambientLight.position.set(45, 45, 45);
@@ -385,38 +400,52 @@ class Visualizer {
     // ambientLight.penumbra = 0.05;
     // ambientLight.lookAt(0, -40, 0);
     // scene.add(ambientLight);
-
-    this.animateBars();
   }
 
   animateBars() {
-    const { scene, renderer, camera, tween, analyzer, numBars } = this;
+    const { scene, renderer, camera, tween, analyzer, numBars, display } = this;
+    let allBars = [];
 
-    TWEEN.update();
+    // TWEEN.update();
 
-    const renderAnimation = () => {
+    if (analyzer) {
+      // retrieve data from the frequency data from analyzer
+      const bufferLength = analyzer.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyzer.getByteFrequencyData(dataArray);
 
-      if (analyzer) {
-        // retrieve data from the frequency data from analyzer
-        const bufferLength = analyzer.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        analyzer.getByteFrequencyData(dataArray);
+      // change bar height
+      const freqInterval = Math.round(dataArray.length * 3 / 4 / (numBars + 3));
+      for (let i = 0; i < numBars; i++) {
+        let value = dataArray[i * freqInterval];
+        value = value < 1 ? 1 : value; // it gets mad if value < 1
+        let bar = scene.getObjectByName("bar" + i);
+        bar.scale.y = value;
 
-        // change bar height
-        const freqInterval = Math.round(dataArray.length * 3 / 4 / (numBars + 3));
-        for (let i = 0; i < numBars; i++) {
-          let value = dataArray[i * freqInterval];
-          value = value < 1 ? 1 : value; // it gets mad if value < 1
-          let bar = scene.getObjectByName("bar" + i);
-          bar.scale.y = value;
+        if (display[display.length - 1] !== "bars") {
+          bar.material.opacity -= 0.000001;
+          allBars.push(bar);
         }
       }
+    }
 
-      renderer.render(scene, camera);
-      this.animation = requestAnimationFrame(renderAnimation);
-    };
+    renderer.render(scene, camera);
+    if (display[display.length - 1] === "bars") {
+      requestAnimationFrame(this.animate);
+    // } else if (allBars.every(bar => {
+      // return bar.material.opacity <= 0;
+    // })) {
+      // const barIdx = display.indexOf("bars");
+      // this.display.splice(barIdx, 1);
+    } else {
+      const barGroup = scene.getObjectByName("bars");
+      scene.remove(barGroup);
+      if (display.includes("lights")) {
+        camera.position.set(0, 0, 150);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+      }
 
-    this.animation = requestAnimationFrame(renderAnimation);
+    }
   }
 
   addHelix() {

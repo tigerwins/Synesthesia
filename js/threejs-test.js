@@ -46,20 +46,24 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // visualizer selection
+
+  const { display } = visualizer;
   document.querySelector(".reset").onclick = () => {
     visualizer.resetLights();
   };
   document.querySelector(".bars").onclick = () => {
-    visualizer.addBars();
+    if (display[display.length - 1] !== "bars") {
+      visualizer.addBars();
+    }
   };
   document.querySelector(".helix").onclick = () => {
-    visualizer.display.push("helix");
+    // visualizer.display.push("helix");
   };
   document.querySelector(".fountain").onclick = () => {
-    visualizer.display.push("fountain");
+    // visualizer.display.push("fountain");
   };
 
   window.addEventListener("resize", visualizer.onWindowResize);
 
-  visualizer.update();
+  visualizer.animate();
 });
