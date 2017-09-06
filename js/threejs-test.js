@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // visualizer selection
   document.querySelector(".reset").onclick = () => {
     // visualizer.display.push("lights");
-    visualizer.setupLights();
+    visualizer.resetLights();
   };
   document.querySelector(".bars").onclick = () => {
     visualizer.addBars();
