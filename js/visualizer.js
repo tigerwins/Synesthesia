@@ -19,7 +19,7 @@ class Visualizer {
     this.animateLights = this.animateLights.bind(this);
     this.addBars = this.addBars.bind(this);
     this.particleSystem;
-    this.particleCount;
+    this.particleCount = 1800;
     this.pMaterial;
     this.particles;
     this.animation;
@@ -145,17 +145,17 @@ class Visualizer {
     const camera = new THREE.PerspectiveCamera(
       VIEW_ANGLE, ASPECT, NEAR, FAR
     );
-    camera.position.set(0, 50, 150);
-    camera.lookAt(new THREE.Vector3(0, 50, 0));
+
+    camera.position.set(0, 0, 150);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const scene = new THREE.Scene();
     renderer.render(scene, camera);
 
-
     this.scene = scene;
     this.renderer = renderer;
     this.camera = camera;
-    this.setupLights();
+    this.renderLights();
   }
 
   onWindowResize() {
@@ -164,34 +164,16 @@ class Visualizer {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  setupLights() {
+  renderLights() {
     this.display.push("lights");
-
-    // setup BLUE LINES TEST
-    // const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
-    // const geometry = new THREE.Geometry();
-    // geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
-    // geometry.vertices.push(new THREE.Vector3(0, 10, 0));
-    // geometry.vertices.push(new THREE.Vector3(10, 0, 0));
-    //
-    // const line = new THREE.Line(geometry, material);
-    // scene.add(line);
-    // let group = new THREE.Group();
-    // scene.add(group);
-    // group.add(line);
-
-
-    // setup particles
-    const particleCount = 1800;
-    this.particleCount = particleCount;
+    this.particleCount = 1800;
+    // const particles = new THREE.Geometry();
     const particles = new THREE.Geometry();
-    let pMaterial;
-    let textureArr = [];
 
     const loader = new THREE.TextureLoader();
     const texture = loader.load("images/particle.png");
 
-    pMaterial = new THREE.PointsMaterial({
+    const pMaterial = new THREE.PointsMaterial({
       // color: 0xa8a9f0,
       color: 0xffffff,
       size: 5,
@@ -204,9 +186,9 @@ class Visualizer {
 
 
     // create individual particles
-    for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < this.particleCount; i++) {
       let pX = Math.random() * 400 - 200;
-      let pY = Math.random() * 150 + 200;
+      let pY = Math.random() * 150 + 150;
       let pZ = Math.random() * 300 - 150;
       let particle = new THREE.Vector3(pX, pY, pZ);
       particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
@@ -219,7 +201,6 @@ class Visualizer {
     // create particle system
     this.particleSystem = new THREE.Points(
       particles, pMaterial);
-    // update particle system to sort particles
     this.particleSystem.sortParticles = true;
 
     this.scene.add(this.particleSystem);
@@ -233,22 +214,41 @@ class Visualizer {
     // directionalLight.position.set(0, 50, 50);
     // scene.add(directionalLight);
 
-    // renderer.render(scene, camera);
-    //
-    //
-    // this.scene = scene;
-    // this.renderer = renderer;
-    // this.camera = camera;
-
 
     // probably need some switch statement to handle the different types of visualizations
   }
 
-  update() {
-    if (this.display.includes("lights")) {
-      this.animateLights();
+  fadeOutLights() {
+
+  }
+
+  resetLights() {
+    this.display.push("lights");
+    let { particleSystem, particleCount, particles } = this;
+
+    // reset particles (positions and alphas)
+    particleSystem.material.opacity = 1;
+    for (let i = 0; i < particleCount; i++) {
+      let pX = Math.random() * 400 - 200;
+      let pY = Math.random() * 150 + 150;
+      let pZ = Math.random() * 300 - 150;
+      particles.vertices[i] = new THREE.Vector3(pX, pY, pZ);
+      particles.vertices[i].velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
+      // particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
     }
 
+
+
+
+  }
+
+  animate() {
+    const { display } = this;
+    if (display.includes("lights")) {
+      this.animateLights();
+    } else if (display[display.length - 1] !== "lights") {
+      this.fadeOutLights();
+    }
   }
 
   animateLights() {
@@ -276,7 +276,7 @@ class Visualizer {
     this.renderer.render(this.scene, this.camera);
 
     if (particleSystem && particles.vertices.every((particle) => {
-      return particle.y < -100;
+      return particle.y < -150;
     })) {
       particleSystem.geometry.dispose();
       this.particleSystem = null;
