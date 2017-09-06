@@ -26,9 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".instrumental").onclick = () => {
     visualizer.loadAndPlaySample("music/instrumental-4.mp3");
   };
-  document.querySelector(".swan-lake").onclick = () => {
-    visualizer.loadAndPlaySample("music/scene.mp3");
-  };
 
   document.querySelector(".fa-play").onclick = () => {
     if (visualizer.source) {
