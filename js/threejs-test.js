@@ -46,20 +46,21 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // visualizer selection
-  let display;
   document.querySelector(".reset").onclick = () => {
+    // visualizer.display.push("lights");
+    visualizer.setupLights();
   };
   document.querySelector(".bars").onclick = () => {
     visualizer.addBars();
   };
   document.querySelector(".helix").onclick = () => {
-    visualizer.display = "helix";
+    visualizer.display.push("helix");
   };
   document.querySelector(".fountain").onclick = () => {
-    visualizer.display = "fountain";
+    visualizer.display.push("fountain");
   };
 
-  visualizer.update();
-
   window.addEventListener("resize", visualizer.onWindowResize);
+
+  visualizer.update();
 });
