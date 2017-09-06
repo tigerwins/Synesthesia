@@ -42,6 +42,7 @@ class Visualizer {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     this.setupRendering();
+    this.setupAudio();
   }
 
   loadAndPlaySample(url) {
@@ -70,8 +71,8 @@ class Visualizer {
   }
 
   setupAudio() {
-
-    
+    this.analyzer = this.audioContext.createAnalyser();
+    // analyzer.fftSize = 2048;
   }
 
   play(audio) {
@@ -82,30 +83,25 @@ class Visualizer {
   }
 
   visualize(buffer) {
-    const audioCtx = this.audioContext;
-    const analyzer = audioCtx.createAnalyser();
-    // analyzer.fftSize = 2048;
-    let sourceNode = audioCtx.createBufferSource();
+    let sourceNode = this.audioContext.createBufferSource();
 
     // connect source to analyzer and
     // analyzer to audio context destination
-    sourceNode.connect(analyzer);
-    analyzer.connect(audioCtx.destination);
+    sourceNode.connect(this.analyzer);
+    this.analyzer.connect(this.audioContext.destination);
     sourceNode.buffer = buffer;
-
-    this.analyzer = analyzer;
 
     // stop previous song if currently playing
     if (this.source) {
       this.source.stop(0);
     }
-
+    // this.source = sourceNode;
     this.source = sourceNode;
-    sourceNode.start(0);
+    this.source.start(0);
 
-    if (this.animation) {
-      cancelAnimationFrame(this.animation);
-    }
+    // if (this.animation) {
+    //   cancelAnimationFrame(this.animation);
+    // }
   }
 
   // playback controls
@@ -427,9 +423,10 @@ class Visualizer {
     // } else if (allBars.every(bar => {
       // return bar.material.opacity <= 0;
     // })) {
-      // const barIdx = display.indexOf("bars");
-      // this.display.splice(barIdx, 1);
     } else {
+      const barIdx = display.indexOf("bars");
+      this.display.splice(barIdx, 1);
+
       const barGroup = scene.getObjectByName("bars");
       scene.remove(barGroup);
       if (display.includes("lights")) {
