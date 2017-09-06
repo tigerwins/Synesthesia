@@ -69,7 +69,10 @@ class Visualizer {
     // request proceeds to download, readyState "LOADING"
   }
 
-  setupAudio() {}
+  setupAudio() {
+
+    
+  }
 
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
@@ -433,7 +436,6 @@ class Visualizer {
         camera.position.set(0, 0, 150);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
       }
-
     }
   }
 
