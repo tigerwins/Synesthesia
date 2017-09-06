@@ -59,8 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
     visualizer.display = "fountain";
   };
 
-
   visualizer.update();
+
+  window.addEventListener("resize", visualizer.onWindowResize);
 });
 
 class Visualizer {
@@ -77,6 +78,7 @@ class Visualizer {
     this.renderer;
     this.camera;
     this.display = "lights";
+    this.onWindowResize = this.onWindowResize.bind(this);
 
     // rendering variables
     this.update = this.update.bind(this);
@@ -220,6 +222,12 @@ class Visualizer {
     this.renderer = renderer;
     this.camera = camera;
     this.setupLights();
+  }
+
+  onWindowResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   setupLights() {
@@ -427,8 +435,8 @@ class Visualizer {
     // spotLight.lookAt(0, -40, 0);
     // scene.add(spotLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 10, 200, 2);
-    pointLight.position.set(0, -20, 0);
+    const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
+    pointLight.position.set(0, 0, 0);
     scene.add(pointLight);
 
     // const ambientLight = new THREE.AmbientLight(0x074747);
