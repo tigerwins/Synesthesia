@@ -215,17 +215,6 @@ class Visualizer {
     // scene.add(directionalLight);
   }
 
-  // fadeOutLights() {
-  //   const {
-  //     particleSystem,
-  //     particleCount,
-  //     particles,
-  //     display,
-  //     renderer
-  //   } = this;
-  //
-  // }
-
   resetLights() {
     const { particleSystem, particleCount, particles, display } = this;
 
