@@ -213,7 +213,6 @@ class Visualizer {
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const scene = new THREE.Scene();
-
     renderer.render(scene, camera);
 
 
@@ -421,12 +420,23 @@ class Visualizer {
     camera.position.y += 45;
     camera.lookAt(scene.position);
 
-    const spotLight = new THREE.SpotLight(0xffffff);
-    spotLight.position.set(45, 45, 45);
-    spotLight.angle = Math.PI / 4;
-    spotLight.penumbra = 0.05;
-    spotLight.lookAt(0, -40, 0);
-    scene.add(spotLight);
+    // const spotLight = new THREE.SpotLight(0xffffff);
+    // spotLight.position.set(45, 45, 45);
+    // spotLight.angle = Math.PI / 4;
+    // spotLight.penumbra = 0.05;
+    // spotLight.lookAt(0, -40, 0);
+    // scene.add(spotLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 10, 200, 2);
+    pointLight.position.set(0, -20, 0);
+    scene.add(pointLight);
+
+    // const ambientLight = new THREE.AmbientLight(0x074747);
+    // ambientLight.position.set(45, 45, 45);
+    // ambientLight.angle = Math.PI / 4;
+    // ambientLight.penumbra = 0.05;
+    // ambientLight.lookAt(0, -40, 0);
+    // scene.add(ambientLight);
 
     this.animateBars();
   }
@@ -445,7 +455,7 @@ class Visualizer {
         analyzer.getByteFrequencyData(dataArray);
 
         // change bar height
-        const freqInterval = Math.round(dataArray.length / numBars);
+        const freqInterval = Math.round(dataArray.length * 3 / 4 / numBars);
         for (let i = 0; i < numBars; i++) {
           let value = dataArray[i * freqInterval];
           value = value < 1 ? 1 : value; // it gets mad if value < 1
