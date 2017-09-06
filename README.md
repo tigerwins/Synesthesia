@@ -19,7 +19,7 @@ This project will make use of the **Web Audio API** to create a context with any
 Landing Page Modal will have a simple toggle button in the top right of the main page  
 ![image of landing page](https://github.com/tigerwins/Synesthesia/blob/master/images/modal.png "landing page modal")
 
-Home page will have drop-down menus to choose visualizations and music in the top left, playback controls in the bottom left, and links to personal site, Github, and LinkedIn in the botom right  
+Home page will have drop-down menus to choose visualizations and music in the top left, playback controls in the bottom left, and links to personal site, Github, and LinkedIn in the bottom right  
 ![image home page](https://github.com/tigerwins/Synesthesia/blob/master/images/home-screen.png "home page")
 
 ### Implementation Timeline
