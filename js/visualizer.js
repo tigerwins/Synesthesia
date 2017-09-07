@@ -1,5 +1,6 @@
+import * as THREE from 'three';
+import TweenMax from 'gsap';
 import * as Util from './util';
-import * as THREE from './three.js';
 
 class Visualizer {
   constructor() {
@@ -24,7 +25,12 @@ class Visualizer {
     this.pMaterial;
     this.particles;
     this.animation;
-    this.tween;
+    // const self = this;
+    // TweenMax.ticker.addEventListener("tick", () => {
+    //   if (this.camera) {
+    //     this.camera.lookAt(0,0,0);
+    //   }
+    // });
 
     // bar animation variables
     this.numBars = 57;
@@ -36,6 +42,7 @@ class Visualizer {
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
+    // this.cameraLookAtOrigin = this.cameraLookAtOrigin.bind(this);
     this.animate = this.animate.bind(this);
     this.animateLights = this.animateLights.bind(this);
     this.animateBars = this.animateBars.bind(this);
@@ -182,10 +189,9 @@ class Visualizer {
 
   renderLights() {
     this.display.push("lights");
-    this.particleCount = 1800;
-    // const particles = new THREE.Geometry();
-    const particles = new THREE.Geometry();
 
+    this.particleCount = 1800;
+    const particles = new THREE.Geometry();
     const loader = new THREE.TextureLoader();
     const texture = loader.load("textures/particle.png");
 
@@ -251,17 +257,22 @@ class Visualizer {
       particles.vertices[i] = particle;
     }
 
-    if (!display.includes("lights") || (display.length === 1 && display[0] === "lights")) {
+    TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
+
+    if (!this.display.includes("lights")) {
+    // } || (display.length === 1 && display[0] === "lights")) {
       requestAnimationFrame(this.animate);
     }
   }
 
   animate() {
     const { display } = this;
+    this.camera.lookAt(new THREE.Vector3(0,0,0));
     if (display.includes("lights")) {
       this.animateLights();
     }
     if (display.includes("bars")) {
+      // this.camera.lookAt(new THREE.Vector3(0,0,0));
       this.animateBars();
     }
     if (display.includes("helix")) {
@@ -356,35 +367,10 @@ class Visualizer {
       barGroup.add(bar);
     }
 
-    // const position = {
-    //   x: camera.position.x,
-    //   y: camera.position.y,
-    //   z: camera.position.z
-    // };
-    // const target = { x: 0, y: 45, z: 150 };
-    // const tween = new TWEEN.Tween(position)
-    //   .to(target, 2000)
-    //   .easing(TWEEN.Easing.Linear.None)
-    //   .onUpdate(function() {
-    //     camera.position.set(this.x, this.y, this.z);
-    //     camera.lookAt(new THREE.Vector3(0, -40, 0));
-    //   })
-    //   .onComplete(function() {
-    //     camera.lookAt(new THREE.Vector3(0, -40, 0));
-    //   })
-    //   .start();
-    //
-    // this.tween = tween;
 
-    // camera.position.set(0, 45, 150);
-    // camera.lookAt(new THREE.Vector3(0, -40, 0));
-    // tween.onUpdate(() => {
-    //   camera.position.y = position.y;
-    // });
-    // tween.start();
-
-    camera.position.set(0, 150, 150);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    TweenMax.to(camera.position, 2, { x: 0, y: 150, z: 150 });
+    // camera.position.set(0, 150, 150);
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
     pointLight.position.set(0, 50, 0);
@@ -521,8 +507,9 @@ class Visualizer {
     helixGroup.add(this.spiral2);
     scene.add(helixGroup);
 
-    camera.position.set(0, 0, 500);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
+    // camera.position.set(0, 0, 500);
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.animate();
   }
 
