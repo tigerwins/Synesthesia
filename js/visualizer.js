@@ -183,7 +183,7 @@ class Visualizer {
     const particles = new THREE.Geometry();
 
     const loader = new THREE.TextureLoader();
-    const texture = loader.load("images/particle.png");
+    const texture = loader.load("textures/particle.png");
 
     const pMaterial = new THREE.PointsMaterial({
       // color: 0xa8a9f0,
