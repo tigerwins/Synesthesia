@@ -12,12 +12,8 @@ class Visualizer {
     this.renderer;
     this.camera;
     this.display = [];
-    this.onWindowResize = this.onWindowResize.bind(this);
 
     // rendering variables
-    this.animate = this.animate.bind(this);
-    this.animateLights = this.animateLights.bind(this);
-    this.addBars = this.addBars.bind(this);
     this.particleSystem;
     this.particleCount = 1800;
     this.pMaterial;
@@ -27,6 +23,18 @@ class Visualizer {
 
     // bar animation variables
     this.numBars = 57;
+
+    // helix animation variables
+    this.helixScale;
+    this.curve1;
+    this.curve2;
+    this.curve3;
+
+    // method binding
+    this.onWindowResize = this.onWindowResize.bind(this);
+    this.animate = this.animate.bind(this);
+    this.animateLights = this.animateLights.bind(this);
+    this.animateBars = this.animateBars.bind(this);
 
   }
 
@@ -40,9 +48,10 @@ class Visualizer {
       window.webkitCancelAnimationFrame;
 
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.analyzer = this.audioContext.createAnalyser();
+    // analyzer.fftSize = 2048;
 
     this.setupRendering();
-    this.setupAudio();
   }
 
   loadAndPlaySample(url) {
@@ -68,11 +77,6 @@ class Visualizer {
     request.send();
 
     // request proceeds to download, readyState "LOADING"
-  }
-
-  setupAudio() {
-    this.analyzer = this.audioContext.createAnalyser();
-    // analyzer.fftSize = 2048;
   }
 
   play(audio) {
@@ -247,6 +251,9 @@ class Visualizer {
     if (display.includes("bars")) {
       this.animateBars();
     }
+    if (display.includes("helix")) {
+      this.animateHelix();
+    }
   }
 
   animateLights() {
@@ -287,14 +294,13 @@ class Visualizer {
     }
   }
 
-  addBars() {
+  renderBars() {
     this.display.push("bars");
     const { scene, camera, renderer} = this;
     renderer.shadowMap.enabled = true;
 
     const barGroup = new THREE.Group();
     barGroup.name = "bars";
-
 
     // Setup plane for bars to stand on
     const planeGeometry = new THREE.PlaneGeometry(500, 500);
@@ -366,28 +372,12 @@ class Visualizer {
     // tween.start();
 
     camera.position.y = 150;
-    // camera.lookAt(scene.position);
-    // camera.lookAt(scene.position);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    // const spotLight = new THREE.SpotLight(0xffffff);
-    // spotLight.position.set(45, 45, 45);
-    // spotLight.angle = Math.PI / 4;
-    // spotLight.penumbra = 0.05;
-    // spotLight.lookAt(0, -40, 0);
-    // scene.add(spotLight);
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
     pointLight.position.set(0, 50, 0);
     barGroup.add(pointLight);
     scene.add(barGroup);
-
-    // const ambientLight = new THREE.AmbientLight(0x074747);
-    // ambientLight.position.set(45, 45, 45);
-    // ambientLight.angle = Math.PI / 4;
-    // ambientLight.penumbra = 0.05;
-    // ambientLight.lookAt(0, -40, 0);
-    // scene.add(ambientLight);
   }
 
   animateBars() {
@@ -436,8 +426,40 @@ class Visualizer {
     }
   }
 
-  addHelix() {
+  renderHelix() {
+    this.display.push("helix");
+    const { camera, scene, renderer, display } = this;
 
+    const helixGroup = new THREE.Group();
+    helixGroup.name = "helix";
+
+    function CustomSinCurve(scale) {
+      THREE.Curve.call(this);
+      this.scale = (scale === undefined) ? 1 : scale;
+    }
+
+    CustomSinCurve.prototype = Object.create(THREE.Curve.prototype);
+    CustomSinCurve.prototype.constructor = CustomSinCurve;
+    CustomSinCurve.prototype.getPoint = function (t) {
+      const tx = t * 4 - 1.5;
+      const ty = Math.sin(2 * Math.PI * t);
+      const tz = Math.cos(2 * Math.PI * t);
+      return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+    }
+
+    const path = new CustomSinCurve(40);
+    const geometry = new THREE.TubeGeometry(path, 100, 20, 40, false);
+    const material = new THREE.PointsMaterial({ color: 0xff0000 });
+    const spiral = new THREE.Points(geometry, material);
+    scene.add(spiral);
+
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 90;
+
+    if (display[display.length - 1] === "helix") {
+      requestAnimationFrame(this.animate);
+    }
   }
 
   animateHelix() {
