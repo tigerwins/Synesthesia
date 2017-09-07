@@ -25,12 +25,6 @@ class Visualizer {
     this.pMaterial;
     this.particles;
     this.animation;
-    // const self = this;
-    // TweenMax.ticker.addEventListener("tick", () => {
-    //   if (this.camera) {
-    //     this.camera.lookAt(0,0,0);
-    //   }
-    // });
 
     // bar animation variables
     this.numBars = 57;
