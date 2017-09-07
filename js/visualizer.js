@@ -1,3 +1,6 @@
+import * as Util from './util';
+import * as THREE from './three.js';
+
 class Visualizer {
   constructor() {
     // Web Audio API variables
@@ -59,7 +62,7 @@ class Visualizer {
     const request = new XMLHttpRequest();
     // current readyState "UNSENT"
     this.currentFile = url.slice(6);
-    console.log(this.currentFile);
+    // console.log(this.currentFile);
 
     // opens an HTTP request, readyState "OPENED"
     request.open("GET", url);
@@ -82,7 +85,7 @@ class Visualizer {
 
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
-      console.log(buffer);
+      // console.log(buffer);
       // const numChannels = 2;
       // const frameCount = this.audioContext.sampleRate * 2;
       // const myArrayBuffer = this.audioContext.createBuffer(
@@ -131,6 +134,7 @@ class Visualizer {
   stop() {
     if (this.audioContext) {
       this.source.stop(0);
+      this.source = null;
       this.resume();
     }
   }
@@ -394,7 +398,7 @@ class Visualizer {
 
     // TWEEN.update();
 
-    if (analyzer) {
+    if (this.source) {
       // retrieve data from the frequency data from analyzer
       const bufferLength = analyzer.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
@@ -489,18 +493,27 @@ class Visualizer {
     geometry2.addAttribute(
       "alpha", new THREE.BufferAttribute(alphas, 1));
 
-    const loader = new THREE.TextureLoader().load("tex")
+    const loader = new THREE.TextureLoader();
+    // const texture = loader.load("textures/perlin-512.png");
     const material1 = new THREE.PointsMaterial({
       size: 5,
-      color: 0xff0000
+      color: 0xff0000,
+      // map: texture,
+      // blending: THREE.AdditiveBlending,
+      // transparent: true
     });
     const material2 = new THREE.PointsMaterial({
       size: 5,
-      color: 0x00ff00
+      color: 0x00ff00,
+      // map: texture,
+      // blending: THREE.AdditiveBlending,
+      // transparent: true
     });
 
     const spiral1 = new THREE.Points(geometry1, material1);
     const spiral2 = new THREE.Points(geometry2, material2);
+    console.log(spiral1);
+    console.log(spiral1.geometry.vertices);
 
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
@@ -539,7 +552,7 @@ class Visualizer {
       }, 0);
 
       const rmsVolume = 1 + Math.ceil(Math.sqrt(dataSum/dataArray.length));
-      console.log(rmsVolume);
+      // console.log(rmsVolume);
 
       this.spiral1.rotation.x += (0.13 * rmsVolume / 11);
       this.spiral2.rotation.x += (0.13 * rmsVolume / 11);
@@ -547,7 +560,7 @@ class Visualizer {
       const freqInterval = Math.round(dataArray.length * 3/4 / (numVertices));
 
       for (let i = 0; i < numVertices; i++) {
-
+        // this.spiral1.vertices[i].
       }
 
 
@@ -561,10 +574,6 @@ class Visualizer {
       requestAnimationFrame(this.animate);
     }
   }
-
-
-
-
-
-
 }
+
+export default Visualizer;
