@@ -224,7 +224,8 @@ class Visualizer {
   resetLights() {
     const { particleSystem, particleCount, particles, display } = this;
 
-    if (display[display.length - 1] !== "lights") {
+    // if (display[display.length - 1] !== "lights") {
+    if (!display.includes("lights")) {
       this.display.push("lights");
     }
 
@@ -242,26 +243,23 @@ class Visualizer {
     }
 
     TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
-
-    if (!this.display.includes("lights")) {
-    // } || (display.length === 1 && display[0] === "lights")) {
-      requestAnimationFrame(this.animate);
-    }
   }
 
   animate() {
     const { display } = this;
     this.camera.lookAt(new THREE.Vector3(0,0,0));
+    console.log(display);
     if (display.includes("lights")) {
       this.animateLights();
     }
     if (display.includes("bars")) {
-      // this.camera.lookAt(new THREE.Vector3(0,0,0));
       this.animateBars();
     }
     if (display.includes("helix")) {
       this.animateHelix();
     }
+
+    requestAnimationFrame(this.animate);
   }
 
   animateLights() {
@@ -295,10 +293,6 @@ class Visualizer {
       particleSystem.material.opacity = 0;
       const lightsIdx = display.indexOf("lights");
       display.splice(lightsIdx, 1);
-    }
-
-    if (display[display.length - 1] === "lights") {
-      requestAnimationFrame(this.animate);
     }
   }
 
@@ -353,7 +347,6 @@ class Visualizer {
 
 
     TweenMax.to(camera.position, 2, { x: 0, y: 150, z: 150 });
-    // camera.position.set(0, 150, 150);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
@@ -388,20 +381,13 @@ class Visualizer {
     }
 
     renderer.render(scene, camera);
-    if (display[display.length - 1] === "bars") {
-      requestAnimationFrame(this.animate);
-    // } else if (allBars.every(bar => {
-      // return bar.material.opacity <= 0;
-    // })) {
-    } else {
+
+    if (display[display.length - 1] !== "bars") {
       const barIdx = display.indexOf("bars");
       this.display.splice(barIdx, 1);
 
       const barGroup = scene.getObjectByName("bars");
       scene.remove(barGroup);
-      if (display[display.length - 1] === "lights") {
-        // camera.position.set(0, 0, 150);
-        // camera.lookAt(new THREE.Vector3(0, 0, 0));
       }
     }
   }
@@ -490,7 +476,6 @@ class Visualizer {
     scene.add(helixGroup);
 
     TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
-    this.animate();
   }
 
   animateHelix() {
@@ -529,16 +514,18 @@ class Visualizer {
       for (let i = 0; i < numVertices; i++) {
         // this.spiral1.vertices[i].
       }
-
-
     }
 
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
     renderer.render(this.scene, this.camera);
 
-    if (display[display.length - 1] === "helix") {
-      requestAnimationFrame(this.animate);
+    if (display[display.length - 1] !== "helix") {
+      const helixIdx = display.indexOf("helix");
+      this.display.splice(helixIdx, 1);
+
+      const helixGroup = this.scene.getObjectByName("helix");
+      this.scene.remove(helixGroup);
     }
   }
 }

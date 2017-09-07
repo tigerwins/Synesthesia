@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       visualizer.renderHelix();
     }
   };
-  document.querySelector(".fountain").onclick = () => {
+  document.querySelector(".rings").onclick = () => {
     // visualizer.display.push("fountain");
   };
 
