@@ -3,6 +3,8 @@ class Visualizer {
     // Web Audio API variables
     this.audioContext;
     this.source;
+    this.leftSource;
+    this.rightSource;
     this.currentFile;
     this.playbackText;
     this.container = document.getElementById("container");
@@ -81,19 +83,27 @@ class Visualizer {
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
       console.log(buffer);
+      // const numChannels = 2;
+      // const frameCount = this.audioContext.sampleRate * 2;
+      // const myArrayBuffer = this.audioContext.createBuffer(
+      //
+      // );
+      this.leftSource = buffer.getChannelData(0);
+      this.rightSource = buffer.getChannelData(1);
+
       let sourceNode = this.audioContext.createBufferSource();
 
       // connect source to analyzer and
       // analyzer to audio context destination
+      sourceNode.buffer = buffer;
       sourceNode.connect(this.analyzer);
       this.analyzer.connect(this.audioContext.destination);
-      sourceNode.buffer = buffer;
 
       // stop previous song if currently playing
       if (this.source) {
         this.source.stop(0);
       }
-      // this.source = sourceNode;
+
       this.source = sourceNode;
       this.source.start(0);
 
@@ -440,7 +450,7 @@ class Visualizer {
     SinCurve.prototype.constructor = SinCurve;
 
     SinCurve.prototype.getPoint = function (t) {
-      const tx = t * 40 - 10;
+      const tx = t * 40 - 20;
       const ty = Math.sin(2*Math.PI * t * 10);
       const tz = Math.cos(2*Math.PI * t * 10);
       return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
@@ -455,7 +465,7 @@ class Visualizer {
     CosCurve.prototype.constructor = CosCurve;
 
     CosCurve.prototype.getPoint = function (t) {
-      const tx = t * 40 - 10 - 3/5*Math.PI;
+      const tx = t * 40 - 20 - 3/5*Math.PI;
       const ty = Math.sin(2*Math.PI * t * 10);
       const tz = Math.cos(2*Math.PI * t * 10);
       return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
@@ -463,8 +473,22 @@ class Visualizer {
 
     const path1 = new SinCurve(50);
     const path2 = new CosCurve(50);
-    const geometry1 = new THREE.TubeGeometry(path1, 500, 20, 50, false);
-    const geometry2 = new THREE.TubeGeometry(path2, 500, 20, 50, false);
+
+    const geometry1 = new THREE.TubeBufferGeometry(
+      path1, 500, 20, 50, false);
+    const geometry2 = new THREE.TubeBufferGeometry(
+      path2, 500, 20, 50, false);
+    const numVertices = geometry1.attributes.position.count;
+    const alphas = new Float32Array(numVertices * 1);
+    for (let i = 0; i < numVertices; i++) {
+      alphas[i] = 0.1;
+    }
+
+    geometry1.addAttribute(
+      "alpha", new THREE.BufferAttribute(alphas, 1));
+    geometry2.addAttribute(
+      "alpha", new THREE.BufferAttribute(alphas, 1));
+
     const material1 = new THREE.PointsMaterial({
       size: 5,
       color: 0xff0000
@@ -473,8 +497,10 @@ class Visualizer {
       size: 5,
       color: 0x00ff00
     });
+
     const spiral1 = new THREE.Points(geometry1, material1);
     const spiral2 = new THREE.Points(geometry2, material2);
+
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
     helixGroup.add(this.spiral1);
@@ -488,32 +514,47 @@ class Visualizer {
 
   animateHelix() {
     const { display, camera, renderer, analyzer } = this;
+    const { spiral1, spiral2 } = this;
 
-    this.spiral1.rotation.x += 0.01;
-    this.spiral2.rotation.x += 0.01;
+    const numVertices = spiral1.geometry.attributes.position.count;
 
-    if (analyzer) {
+
+
+    // for (let i = 0; i < numVertices; i++) {
+    //   alphas[i] = Math.random();
+    // }
+
+    if (!this.source) {
+      this.spiral1.rotation.x += 0.001;
+      this.spiral2.rotation.x += 0.001;
+    } else {
       const bufferLength = analyzer.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength)
+      const dataArray = new Uint8Array(bufferLength);
       analyzer.getByteFrequencyData(dataArray);
+      const beatRange =
+        dataArray.slice(Math.round(dataArray.length * 2/3));
+      const dataSum = beatRange.reduce((sum, value) => {
+        return sum + value;
+      }, 0);
 
-      const freqInterval = Math.round(dataArray.length * 3/4);
+      const rmsVolume = 1 + Math.ceil(Math.sqrt(dataSum/dataArray.length));
+      console.log(rmsVolume);
 
+      this.spiral1.rotation.x += (0.13 * rmsVolume / 11);
+      this.spiral2.rotation.x += (0.13 * rmsVolume / 11);
+
+      const freqInterval = Math.round(dataArray.length * 3/4 / (numVertices));
+
+      for (let i = 0; i < numVertices; i++) {
+
+      }
 
 
     }
 
-
-
-
-
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
     renderer.render(this.scene, this.camera);
-
-
-
-
 
     if (display[display.length - 1] === "helix") {
       requestAnimationFrame(this.animate);
