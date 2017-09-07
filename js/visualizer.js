@@ -200,7 +200,6 @@ class Visualizer {
       transparent: true
     });
 
-
     // create individual particles
     for (let i = 0; i < this.particleCount; i++) {
       let pX = Math.random() * 400 - 200;
@@ -220,15 +219,6 @@ class Visualizer {
     this.particleSystem.sortParticles = true;
 
     this.scene.add(this.particleSystem);
-
-    // test lighting
-
-    // const ambientLight = new THREE.AmbientLight(0x0c0c0c);
-    // scene.add(ambientLight);
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-    // directionalLight.castShadow = true;
-    // directionalLight.position.set(0, 50, 50);
-    // scene.add(directionalLight);
   }
 
   resetLights() {
@@ -376,8 +366,6 @@ class Visualizer {
     const { scene, renderer, camera, tween, analyzer, numBars, display } = this;
     let allBars = [];
 
-    // TWEEN.update();
-
     if (this.source) {
       // retrieve data from the frequency data from analyzer
       const bufferLength = analyzer.frequencyBinCount;
@@ -438,7 +426,7 @@ class Visualizer {
       const ty = Math.sin(2*Math.PI * t * 10);
       const tz = Math.cos(2*Math.PI * t * 10);
       return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
-    }
+    };
 
     function CosCurve(scale) {
       THREE.Curve.call(this);
@@ -453,7 +441,7 @@ class Visualizer {
       const ty = Math.sin(2*Math.PI * t * 10);
       const tz = Math.cos(2*Math.PI * t * 10);
       return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
-    }
+    };
 
     const path1 = new SinCurve(50);
     const path2 = new CosCurve(50);
@@ -502,8 +490,6 @@ class Visualizer {
     scene.add(helixGroup);
 
     TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
-    // camera.position.set(0, 0, 500);
-    // camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.animate();
   }
 
