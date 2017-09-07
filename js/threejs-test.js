@@ -51,6 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".reset").onclick = () => {
     visualizer.resetLights();
   };
+  document.querySelector(".blank").onclick = () => {
+    visualizer.renderBlank();
+  };
   document.querySelector(".bars").onclick = () => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();

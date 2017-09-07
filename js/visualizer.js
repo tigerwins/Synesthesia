@@ -28,16 +28,13 @@ class Visualizer {
     this.helixScale;
     this.spiral;
     this.spiral2;
-    this.curve1;
-    this.curve2;
-    this.curve3;
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
     this.animateLights = this.animateLights.bind(this);
     this.animateBars = this.animateBars.bind(this);
-
+    this.animateHelix = this.animateHelix.bind(this);
   }
 
 
@@ -84,30 +81,26 @@ class Visualizer {
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
       console.log(buffer);
-      this.visualize(buffer);
+      let sourceNode = this.audioContext.createBufferSource();
+
+      // connect source to analyzer and
+      // analyzer to audio context destination
+      sourceNode.connect(this.analyzer);
+      this.analyzer.connect(this.audioContext.destination);
+      sourceNode.buffer = buffer;
+
+      // stop previous song if currently playing
+      if (this.source) {
+        this.source.stop(0);
+      }
+      // this.source = sourceNode;
+      this.source = sourceNode;
+      this.source.start(0);
+
+      // if (this.animation) {
+      //   cancelAnimationFrame(this.animation);
+      // }
     });
-  }
-
-  visualize(buffer) {
-    let sourceNode = this.audioContext.createBufferSource();
-
-    // connect source to analyzer and
-    // analyzer to audio context destination
-    sourceNode.connect(this.analyzer);
-    this.analyzer.connect(this.audioContext.destination);
-    sourceNode.buffer = buffer;
-
-    // stop previous song if currently playing
-    if (this.source) {
-      this.source.stop(0);
-    }
-    // this.source = sourceNode;
-    this.source = sourceNode;
-    this.source.start(0);
-
-    // if (this.animation) {
-    //   cancelAnimationFrame(this.animation);
-    // }
   }
 
   // playback controls
@@ -167,6 +160,10 @@ class Visualizer {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  renderBlank() {
+    this.display.push("blank");
   }
 
   renderLights() {
@@ -240,7 +237,7 @@ class Visualizer {
       particles.vertices[i] = particle;
     }
 
-    if (!display.includes("lights")) {
+    if (!display.includes("lights") || (display.length === 1 && display[0] === "lights")) {
       requestAnimationFrame(this.animate);
     }
   }
@@ -317,7 +314,6 @@ class Visualizer {
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = -0.5 * Math.PI;
     plane.position.x = 0;
-    // plane.position.y = -40;
     plane.position.y = 0;
     plane.position.z = 0;
     plane.receiveShadow = true;
@@ -373,7 +369,7 @@ class Visualizer {
     // });
     // tween.start();
 
-    camera.position.y = 150;
+    camera.position.set(0, 150, 150);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
@@ -421,9 +417,9 @@ class Visualizer {
 
       const barGroup = scene.getObjectByName("bars");
       scene.remove(barGroup);
-      if (display.includes("lights")) {
-        camera.position.set(0, 0, 150);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
+      if (display[display.length - 1] === "lights") {
+        // camera.position.set(0, 0, 150);
+        // camera.lookAt(new THREE.Vector3(0, 0, 0));
       }
     }
   }
@@ -467,39 +463,57 @@ class Visualizer {
 
     const path1 = new SinCurve(50);
     const path2 = new CosCurve(50);
-    const geometry1 = new THREE.TubeBufferGeometry(
-      path1, 500, 20, 50, false);
-    const geometry2 = new THREE.TubeBufferGeometry(
-      path2, 500, 20, 50, false);
-    geometry1.setDrawRange(0, 9999999999);
-    geometry2.setDrawRange(0, 9999999999);
-    const material1 = new THREE.PointsMaterial({ color: 0xff0000 });
-    const material2 = new THREE.PointsMaterial({ color: 0x00ff00 });
+    const geometry1 = new THREE.TubeGeometry(path1, 500, 20, 50, false);
+    const geometry2 = new THREE.TubeGeometry(path2, 500, 20, 50, false);
+    const material1 = new THREE.PointsMaterial({
+      size: 5,
+      color: 0xff0000
+    });
+    const material2 = new THREE.PointsMaterial({
+      size: 5,
+      color: 0x00ff00
+    });
     const spiral1 = new THREE.Points(geometry1, material1);
     const spiral2 = new THREE.Points(geometry2, material2);
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
     helixGroup.add(this.spiral1);
     helixGroup.add(this.spiral2);
-
     scene.add(helixGroup);
 
-    camera.position.x = 0;
-    camera.position.y = 0;
-    camera.position.z = 500;
-
+    camera.position.set(0, 0, 500);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.animate();
   }
 
   animateHelix() {
-    const { display, renderer } = this;
+    const { display, camera, renderer, analyzer } = this;
 
     this.spiral1.rotation.x += 0.01;
     this.spiral2.rotation.x += 0.01;
 
+    if (analyzer) {
+      const bufferLength = analyzer.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength)
+      analyzer.getByteFrequencyData(dataArray);
+
+      const freqInterval = Math.round(dataArray.length * 3/4);
+
+
+
+    }
+
+
+
+
+
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
     renderer.render(this.scene, this.camera);
+
+
+
+
 
     if (display[display.length - 1] === "helix") {
       requestAnimationFrame(this.animate);
