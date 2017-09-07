@@ -388,7 +388,6 @@ class Visualizer {
 
       const barGroup = scene.getObjectByName("bars");
       scene.remove(barGroup);
-      }
     }
   }
 
