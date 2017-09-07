@@ -26,6 +26,8 @@ class Visualizer {
 
     // helix animation variables
     this.helixScale;
+    this.spiral;
+    this.spiral2;
     this.curve1;
     this.curve2;
     this.curve3;
@@ -433,37 +435,75 @@ class Visualizer {
     const helixGroup = new THREE.Group();
     helixGroup.name = "helix";
 
-    function CustomSinCurve(scale) {
+    function SinCurve(scale) {
       THREE.Curve.call(this);
       this.scale = (scale === undefined) ? 1 : scale;
     }
 
-    CustomSinCurve.prototype = Object.create(THREE.Curve.prototype);
-    CustomSinCurve.prototype.constructor = CustomSinCurve;
-    CustomSinCurve.prototype.getPoint = function (t) {
-      const tx = t * 4 - 1.5;
-      const ty = Math.sin(2 * Math.PI * t);
-      const tz = Math.cos(2 * Math.PI * t);
+    SinCurve.prototype = Object.create(THREE.Curve.prototype);
+    SinCurve.prototype.constructor = SinCurve;
+
+    SinCurve.prototype.getPoint = function (t) {
+      const tx = t * 40 - 10;
+      const ty = Math.sin(2*Math.PI * t * 10);
+      const tz = Math.cos(2*Math.PI * t * 10);
       return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
     }
 
-    const path = new CustomSinCurve(40);
-    const geometry = new THREE.TubeGeometry(path, 100, 20, 40, false);
-    const material = new THREE.PointsMaterial({ color: 0xff0000 });
-    const spiral = new THREE.Points(geometry, material);
-    scene.add(spiral);
+    function CosCurve(scale) {
+      THREE.Curve.call(this);
+      this.scale = (scale === undefined) ? 1 : scale;
+    }
+
+    CosCurve.prototype = Object.create(THREE.Curve.prototype);
+    CosCurve.prototype.constructor = CosCurve;
+
+    CosCurve.prototype.getPoint = function (t) {
+      const tx = t * 40 - 10 - 3/5*Math.PI;
+      const ty = Math.sin(2*Math.PI * t * 10);
+      const tz = Math.cos(2*Math.PI * t * 10);
+      return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+    }
+
+    const path1 = new SinCurve(50);
+    const path2 = new CosCurve(50);
+    const geometry1 = new THREE.TubeBufferGeometry(
+      path1, 500, 20, 50, false);
+    const geometry2 = new THREE.TubeBufferGeometry(
+      path2, 500, 20, 50, false);
+    geometry1.setDrawRange(0, 9999999999);
+    geometry2.setDrawRange(0, 9999999999);
+    const material1 = new THREE.PointsMaterial({ color: 0xff0000 });
+    const material2 = new THREE.PointsMaterial({ color: 0x00ff00 });
+    const spiral1 = new THREE.Points(geometry1, material1);
+    const spiral2 = new THREE.Points(geometry2, material2);
+    this.spiral1 = spiral1;
+    this.spiral2 = spiral2;
+    helixGroup.add(this.spiral1);
+    helixGroup.add(this.spiral2);
+
+    scene.add(helixGroup);
 
     camera.position.x = 0;
     camera.position.y = 0;
-    camera.position.z = 90;
+    camera.position.z = 500;
+
+    this.animate();
+  }
+
+  animateHelix() {
+    const { display, renderer } = this;
+
+    this.spiral1.rotation.x += 0.01;
+    this.spiral2.rotation.x += 0.01;
+
+    this.spiral1.geometry.verticesNeedUpdate = true;
+    this.spiral2.geometry.verticesNeedUpdate = true;
+    renderer.render(this.scene, this.camera);
 
     if (display[display.length - 1] === "helix") {
       requestAnimationFrame(this.animate);
     }
-  }
-
-  animateHelix() {
-
   }
 
 
