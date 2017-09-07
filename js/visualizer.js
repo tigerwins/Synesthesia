@@ -489,6 +489,7 @@ class Visualizer {
     geometry2.addAttribute(
       "alpha", new THREE.BufferAttribute(alphas, 1));
 
+    const loader = new THREE.TextureLoader().load("tex")
     const material1 = new THREE.PointsMaterial({
       size: 5,
       color: 0xff0000
