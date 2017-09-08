@@ -344,8 +344,7 @@ class Visualizer {
       barGroup.add(bar);
     }
 
-
-    TweenMax.to(camera.position, 2, { x: 0, y: 150, z: 150 });
+    TweenMax.to(camera.position, 2, { x: 0, y: 250, z: 200 });
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
