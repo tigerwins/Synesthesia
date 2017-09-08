@@ -36,7 +36,6 @@ class Visualizer {
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
-    // this.cameraLookAtOrigin = this.cameraLookAtOrigin.bind(this);
     this.animate = this.animate.bind(this);
     this.animateLights = this.animateLights.bind(this);
     this.animateBars = this.animateBars.bind(this);
@@ -482,8 +481,6 @@ class Visualizer {
     const { spiral1, spiral2 } = this;
 
     const numVertices = spiral1.geometry.attributes.position.count;
-
-
 
     // for (let i = 0; i < numVertices; i++) {
     //   alphas[i] = Math.random();
