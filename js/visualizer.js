@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import TweenMax from 'gsap';
 // const OrbitControls = require('three-orbit-controls')(THREE);
-// import * as Util from './util';
+import * as Util from './util';
+import * as Water from './WaterShader';
 
 class Visualizer {
   constructor() {
@@ -30,11 +31,13 @@ class Visualizer {
     // bar animation variables
     this.numBars = 57;
     this.toggleCameraMove = true;
+    this.barCheck = true;
 
     // helix animation variables
     this.helixScale;
     this.spiral;
     this.spiral2;
+    this.helixCheck = true;
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
@@ -224,7 +227,6 @@ class Visualizer {
   resetLights() {
     const { particleSystem, particleCount, particles, display } = this;
 
-    // if (display[display.length - 1] !== "lights") {
     if (!display.includes("lights")) {
       this.display.push("lights");
     }
@@ -257,11 +259,19 @@ class Visualizer {
 
 
     if (toggleCameraMove) {
-      if (!camera.position.equals(pos0)) {
+      // if (!camera.position.equals(pos0)) {
         // this.camera.lookAt(new THREE.Vector3(0,20,0));
         // TweenMax.to(camera.target, 5, { ease: Sine.easeInOut, x: 0, y: 20, z: 0 });
-      }
-      if (camera.position.equals(pos1)) {
+      // }
+      if (camera.position.equals(pos0)) {
+        if (this.source && this.barCheck) {
+          setTimeout(() => {
+            TweenMax.to(camera.position, 5,
+              { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+          }, 7000);
+          this.barCheck = false;
+        }
+      } else if (camera.position.equals(pos1)) {
         TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
       } else if (camera.position.equals(pos2)) {
@@ -281,7 +291,7 @@ class Visualizer {
           { ease: Sine.easeInOut, x: 0, y: 250, z: 200});
       }
     } else {
-      TweenMax.to(camera.position, 5, { east: Sine.eaeInOut, x: 0, y: 250, z: 200 });
+      TweenMax.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
     }
   }
 
@@ -342,12 +352,23 @@ class Visualizer {
   }
 
   renderBars() {
+    this.barCheck = true;
     this.display.push("bars");
     const { scene, camera, renderer} = this;
     renderer.shadowMap.enabled = true;
 
+    const pos0 = new THREE.Vector3(0, 0, 150);
+    if (!camera.position.equals(pos0)) {
+      TweenMax.to(camera.position, 5,
+        { ease: Sine.easeInOut, x: 0, y: 0, z: 150 });
+    }
+
     const barGroup = new THREE.Group();
     barGroup.name = "bars";
+
+    const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
+    pointLight.position.set(0, 50, 0);
+    barGroup.add(pointLight);
 
     // Setup plane for bars to stand on
     const planeGeometry = new THREE.PlaneGeometry(500, 500);
@@ -390,16 +411,6 @@ class Visualizer {
       barGroup.add(bar);
     }
 
-    if (this.source) {
-      setTimeout(() => {
-        TweenMax.to(this.camera.position, 5,
-          { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
-      }, 7000);
-    }
-
-    const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
-    pointLight.position.set(0, 50, 0);
-    barGroup.add(pointLight);
     scene.add(barGroup);
   }
 
@@ -440,6 +451,7 @@ class Visualizer {
   }
 
   renderHelix() {
+    this.helixCheck = true;
     this.display.push("helix");
     const { camera, scene, renderer, display } = this;
 
@@ -506,16 +518,44 @@ class Visualizer {
 
     const spiral1 = new THREE.Points(geometry1, material1);
     const spiral2 = new THREE.Points(geometry2, material2);
-    // console.log(spiral1);
-    // console.log(spiral1.geometry.vertices);
 
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
+    this.renderHelixOrbits();
     helixGroup.add(this.spiral1);
     helixGroup.add(this.spiral2);
+
+    // helixGroup.add(orbits);
+
     scene.add(helixGroup);
 
     TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
+  }
+
+  renderHelixOrbits() {
+    const numLights = 20;
+    const lightGroup = new THREE.Group();
+    const bulbGeometry = new THREE.SphereGeometry(2, 16, 8);
+    const bulbMaterial = new THREE.MeshStandardMaterial({
+    	emissive: 0xffffee,
+			emissiveIntensity: 1,
+			color: 0x000000
+		});
+    for (let i = 0; i < numLights; i++) {
+      let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
+      bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
+      let x = 400 * Math.random() - 200;
+      let y = (200 - x) * Math.random() - (200 - x);
+      let z = Math.sign(Math.random() - 0.5) *
+        Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
+      let posArray = [x, y, z];
+      posArray = Util.shuffle(posArray);
+      bulbLight.position.set(posArray[0], posArray[1], posArray[2]);
+      bulbLight.castShadow = true;
+      lightGroup.add(bulbLight);
+    }
+
+    this.scene.add(lightGroup);
   }
 
   animateHelix() {
@@ -523,10 +563,6 @@ class Visualizer {
     const { spiral1, spiral2 } = this;
 
     const numVertices = spiral1.geometry.attributes.position.count;
-
-    // for (let i = 0; i < numVertices; i++) {
-    //   alphas[i] = Math.random();
-    // }
 
     if (!this.source) {
       this.spiral1.rotation.x += 0.001;
@@ -559,10 +595,22 @@ class Visualizer {
     renderer.render(this.scene, this.camera);
 
     if (display[display.length - 1] !== "helix") {
-      const helixIdx = display.indexOf("helix");
+      this.handleHelixRemoval();
+    }
+  }
+
+  handleHelixRemoval() {
+    const helixGroup = this.scene.getObjectByName("helix");
+
+    if (this.helixCheck) {
+      TweenMax.to(helixGroup.position, 5, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
+      this.helixCheck = false;
+    }
+
+    if (helixGroup.position.equals(new THREE.Vector3(4000,0,0))) {
+      const helixIdx = this.display.indexOf("helix");
       this.display.splice(helixIdx, 1);
 
-      const helixGroup = this.scene.getObjectByName("helix");
       this.scene.remove(helixGroup);
     }
   }

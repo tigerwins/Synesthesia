@@ -15,3 +15,15 @@ for (let i = 0; i < 100; i++) {
 
   // console.log(RGBToColor(red, green, blue));
 }
+
+export const shuffle = function (array) {
+  let hold, j;
+  for (let i = array.length; i; i--) {
+      j = Math.floor(Math.random() * i);
+      hold = array[i - 1];
+      array[i - 1] = array[j];
+      array[j] = hold;
+  }
+
+  return array;
+};
