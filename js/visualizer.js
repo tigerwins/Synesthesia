@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import TweenMax from 'gsap';
-import * as Util from './util';
+// const OrbitControls = require('three-orbit-controls')(THREE);
+// import * as Util from './util';
 
 class Visualizer {
   constructor() {
@@ -28,6 +29,7 @@ class Visualizer {
 
     // bar animation variables
     this.numBars = 57;
+    this.toggleCameraMove = true;
 
     // helix animation variables
     this.helixScale;
@@ -41,7 +43,6 @@ class Visualizer {
     this.animateBars = this.animateBars.bind(this);
     this.animateHelix = this.animateHelix.bind(this);
   }
-
 
   init() {
     window.requestAnimationFrame =
@@ -134,7 +135,9 @@ class Visualizer {
   stop() {
     if (this.audioContext) {
       this.source.stop(0);
-      this.source = null;
+      setTimeout(() => {
+        this.source = null;
+      }, 2000);
       this.resume();
     }
   }
@@ -147,8 +150,6 @@ class Visualizer {
     const ASPECT = WIDTH / HEIGHT;
     const NEAR = 0.1;
     const FAR = 1000;
-
-    // const axes = new THREE.AxisHelper(20);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(WIDTH, HEIGHT);
@@ -244,18 +245,63 @@ class Visualizer {
     TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
   }
 
+  animateBarsCamera() {
+    const { camera, toggleCameraMove } = this;
+    const pos0 = new THREE.Vector3(0, 0, 150);
+    const pos1 = new THREE.Vector3(0, 250, 200);
+    const pos2 = new THREE.Vector3(150, 50, -100);
+    const pos3 = new THREE.Vector3(-75, 250, -50);
+    const pos4 = new THREE.Vector3(0, 50, 250);
+    const pos5 = new THREE.Vector3(150, 250, -75);
+    const pos6 = new THREE.Vector3(-150, 50, -100);
+
+
+    if (toggleCameraMove) {
+      if (!camera.position.equals(pos0)) {
+        // this.camera.lookAt(new THREE.Vector3(0,20,0));
+        // TweenMax.to(camera.target, 5, { ease: Sine.easeInOut, x: 0, y: 20, z: 0 });
+      }
+      if (camera.position.equals(pos1)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
+      } else if (camera.position.equals(pos2)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: -75, y: 250, z: -50 });
+      } else if (camera.position.equals(pos3)) {
+        TweenMax.to(camera.position, 10,
+            { ease: Sine.easeInOut, x: 0, y: 50, z: 250 });
+      } else if (camera.position.equals(pos4)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: 150, y: 250, z: -75 });
+      } else if (camera.position.equals(pos5)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: -150, y: 50, z: -100 });
+      } else if (camera.position.equals(pos6)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: 0, y: 250, z: 200});
+      }
+    } else {
+      TweenMax.to(camera.position, 5, { east: Sine.eaeInOut, x: 0, y: 250, z: 200 });
+    }
+  }
+
   animate() {
     const { display } = this;
     this.camera.lookAt(new THREE.Vector3(0,0,0));
-    console.log(display);
+
     if (display.includes("lights")) {
       this.animateLights();
     }
     if (display.includes("bars")) {
       this.animateBars();
+
+      if (display[display.length - 1] === "bars") {
+        this.animateBarsCamera();
+      }
     }
     if (display.includes("helix")) {
       this.animateHelix();
+      // this.camera.lookAt(new THREE.Vector3(0,0,0));
     }
 
     requestAnimationFrame(this.animate);
@@ -326,8 +372,8 @@ class Visualizer {
     const cubeMaterial = new THREE.MeshPhongMaterial({
       color: 0x00D4FF,
       specular: 0x01FF00,
-      shininess: 20,
-      reflectivity: 5.5
+      shininess: 10,
+      reflectivity: 2.5
     });
 
     for (let i = 0; i < this.numBars; i++) {
@@ -344,8 +390,12 @@ class Visualizer {
       barGroup.add(bar);
     }
 
-    TweenMax.to(camera.position, 2, { x: 0, y: 250, z: 200 });
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+    if (this.source) {
+      setTimeout(() => {
+        TweenMax.to(this.camera.position, 5,
+          { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+      }, 7000);
+    }
 
     const pointLight = new THREE.PointLight(0x00D4FF, 5, 400, 2);
     pointLight.position.set(0, 50, 0);
@@ -445,26 +495,19 @@ class Visualizer {
       "alpha", new THREE.BufferAttribute(alphas, 1));
 
     const loader = new THREE.TextureLoader();
-    // const texture = loader.load("textures/perlin-512.png");
     const material1 = new THREE.PointsMaterial({
       size: 5,
       color: 0xff0000,
-      // map: texture,
-      // blending: THREE.AdditiveBlending,
-      // transparent: true
     });
     const material2 = new THREE.PointsMaterial({
       size: 5,
       color: 0x00ff00,
-      // map: texture,
-      // blending: THREE.AdditiveBlending,
-      // transparent: true
     });
 
     const spiral1 = new THREE.Points(geometry1, material1);
     const spiral2 = new THREE.Points(geometry2, material2);
-    console.log(spiral1);
-    console.log(spiral1.geometry.vertices);
+    // console.log(spiral1);
+    // console.log(spiral1.geometry.vertices);
 
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
