@@ -1,19 +1,16 @@
 import Visualizer from './visualizer';
 import $ from 'jquery';
 
-document.addEventListener("DOMContentLoaded", () => {
-
+$(() => {
   // modal controls
-  const question = document.getElementById("question");
-  const enter = document.getElementById("enter");
-  const modal = document.querySelector(".landing-page");
+  $("#enter").click(() => {
+    $(".landing-page").addClass("hidden");
+    setTimeout(() => {
 
-  enter.addEventListener("click", () => {
-    modal.classList.add("hidden");
+    }, 1000);
   });
-
-  question.addEventListener("click", () => {
-    modal.classList.remove("hidden");
+  $("#question").click(() => {
+    $(".landing-page").removeClass("hidden");
   });
 
   // dropdown menus
@@ -34,58 +31,59 @@ document.addEventListener("DOMContentLoaded", () => {
   const visualizer = new Visualizer();
   visualizer.init();
 
-  document.querySelector(".chaoz").onclick = () => {
+  $(".chaoz").click(() => {
     visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
-  };
-  document.querySelector(".endeavours").onclick = () => {
+  });
+  $(".endeavours").click(() => {
     visualizer.loadAndPlaySample("music/endeavours.mp3");
-  };
-  document.querySelector(".instrumental").onclick = () => {
+  });
+  $(".instrumental").click(() => {
     visualizer.loadAndPlaySample("music/instrumental-4.mp3");
-  };
+  });
 
-  document.querySelector(".fa-play").onclick = () => {
+  // Music playback controls
+  $(".fa-play").click(() => {
     if (visualizer.source) {
       visualizer.resume();
     }
-  };
+  });
 
-  document.querySelector(".fa-pause").onclick = () => {
+  $(".fa-pause").click(() => {
     if (visualizer.source) {
       visualizer.pause();
     }
-  };
+  });
 
-  document.querySelector(".fa-stop").onclick = () => {
+  $(".fa-stop").click(() => {
     if (visualizer.source) {
       visualizer.stop();
     }
-  };
+  });
 
   // visualizer selection
 
   const { display } = visualizer;
-  document.querySelector(".reset").onclick = () => {
+  $(".reset").click(() => {
     visualizer.resetLights();
-  };
-  document.querySelector(".blank").onclick = () => {
+  });
+  $(".blank").click(() => {
     visualizer.renderBlank();
-  };
-  document.querySelector(".bars").onclick = () => {
+  });
+  $(".bars").click(() => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
-  };
-  document.querySelector(".helix").onclick = () => {
+  });
+  $(".helix").click(() => {
     if (display[display.length - 1] !== "helix") {
       visualizer.renderHelix();
     }
-  };
-  // document.querySelector(".rings").onclick = () => {
+  });
+  // $(".rings").click(() => {
     // visualizer.display.push("fountain");
-  // };
+  // });
 
-  window.addEventListener("resize", visualizer.onWindowResize);
+  $(window).resize(visualizer.onWindowResize);
 
   visualizer.animate();
 });

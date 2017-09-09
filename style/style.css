@@ -16,9 +16,18 @@ body {
 
 /*Modal*/
 
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 div.landing-page {
   z-index: 5;
-  /*transition: .5s;*/
   position: fixed;
   top: 0;
   bottom: 0;
@@ -26,17 +35,16 @@ div.landing-page {
   left: 0;
   background-color: rgba(50,50,50,0.65);
   overflow: hidden;
-
-  animation: fadeIn 100ms ease-in-out 0s 1 normal forwards;
-  -webkit-animation: fadeIn 100ms ease-in-out 0s 1 normal forwards;
-  animation: fadeOut 100ms ease-in-out 0s 1 normal forwards;
-  -webkit-animation: fadeOut 100ms ease-in-out 0s 1 normal forwards;
-
-  transition: 0.3s;
+  visibility: visible;
+  transition: 1s;
+  animation: fadein 1s;
 }
 
-.hidden {
-  display: none;
+div.landing-page.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 1s;
+  animation: fadeout 1s;
 }
 
 div.modal {
@@ -98,6 +106,7 @@ div.nav-option {
   display: flex;
   align-items: center;
   margin: 0 15px;
+  position: relative;
 }
 
 label {
@@ -114,39 +123,31 @@ label:after {
   position: absolute;
 }
 
-@keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes fadeout {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
 ul.menu {
   line-height: 1.25;
   border-radius: 3px;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   list-style-type: none;
   box-shadow: 0 1px 1px rgba(200,200,200,0.7);
-  transition: 300px 0.4s ease-out;
   animation: fadein 0.4s;
-
   top: 60px;
   position: absolute;
 }
 
+ul.visualizations {
+  width: 100%;
+}
+
 ul.menu.open {
-  /*display: flex;*/
+  display: flex;
+  flex-direction: column;
 }
 
 ul.menu.closed {
   visibility: hidden;
   opacity: 0;
-  animation: fadeout 0.4s;
+  transition: 0.4s;
+  /*animation: fadeout 0.4s;*/
 }
 
 ul.menu li {
@@ -160,7 +161,6 @@ ul.menu li span {
   display: block;
   margin: 4px 8px;
   text-decoration: none;
-  transition: .3s;
   white-space: nowrap;
 }
 
