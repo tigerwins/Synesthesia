@@ -114,14 +114,6 @@ label:after {
   position: absolute;
 }
 
-input:checked ~ label:after {
-  /*transition: border-top .1s, border-bottom .1s .1s;*/
-}
-
-input#vis-check, input#music-check {
-  display: none;
-}
-
 @keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -132,26 +124,29 @@ input#vis-check, input#music-check {
   to   { opacity: 0; }
 }
 
-input:checked ~ ul.menu{
-  max-height: 400px;
-  transition: max-height 0.4s;
-  animation: fadein 0.4s;
-}
-
 ul.menu {
   line-height: 1.25;
   border-radius: 3px;
   display: flex;
   flex-direction: column;
-  max-height: 0;
   overflow: hidden;
   list-style-type: none;
   box-shadow: 0 1px 1px rgba(200,200,200,0.7);
-  transition: max-height 0.4s ease-out;
-  animation: fadeout 0.4s;
+  transition: 300px 0.4s ease-out;
+  animation: fadein 0.4s;
 
   top: 60px;
   position: absolute;
+}
+
+ul.menu.open {
+  /*display: flex;*/
+}
+
+ul.menu.closed {
+  visibility: hidden;
+  opacity: 0;
+  animation: fadeout 0.4s;
 }
 
 ul.menu li {

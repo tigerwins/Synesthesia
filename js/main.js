@@ -1,4 +1,5 @@
 import Visualizer from './visualizer';
+import $ from 'jquery';
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -13,6 +14,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   question.addEventListener("click", () => {
     modal.classList.remove("hidden");
+  });
+
+  // dropdown menus
+
+  $(".nav-option").mouseover(function() {
+    $(this).children("ul").removeClass("closed").addClass("open");
+  });
+
+  $(".nav-option").mouseleave(function() {
+    $(this).children("ul.menu").removeClass("open").addClass("closed");
+  });
+
+  $("ul.menu").click(function() {
+    $(this).removeClass("open").addClass("closed");
   });
 
   // Sample music selection
@@ -66,9 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
       visualizer.renderHelix();
     }
   };
-  document.querySelector(".rings").onclick = () => {
+  // document.querySelector(".rings").onclick = () => {
     // visualizer.display.push("fountain");
-  };
+  // };
 
   window.addEventListener("resize", visualizer.onWindowResize);
 
