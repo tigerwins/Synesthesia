@@ -538,7 +538,7 @@ class Visualizer {
         Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
       bulb.position.set(x, y, z);
       bulb.name = "light" + i;
-      // bulb.castShadow = true;
+      bulb.castShadow = true;
       lightGroup.add(bulb);
     }
 
