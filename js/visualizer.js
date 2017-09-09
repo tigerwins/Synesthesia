@@ -91,14 +91,9 @@ class Visualizer {
 
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
-      // console.log(buffer);
-      // const numChannels = 2;
-      // const frameCount = this.audioContext.sampleRate * 2;
-      // const myArrayBuffer = this.audioContext.createBuffer(
-      //
-      // );
       this.leftSource = buffer.getChannelData(0);
       this.rightSource = buffer.getChannelData(1);
+      console.log
 
       let sourceNode = this.audioContext.createBufferSource();
 
