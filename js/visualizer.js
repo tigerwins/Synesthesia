@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import TweenMax from 'gsap';
-// const OrbitControls = require('three-orbit-controls')(THREE);
 import * as Util from './util';
-import * as Water from './WaterShader';
 
 class Visualizer {
   constructor() {
@@ -37,7 +35,10 @@ class Visualizer {
     this.helixScale;
     this.spiral;
     this.spiral2;
+    this.helixGroup;
+    this.orbitLights;
     this.helixCheck = true;
+    this.orbitCheck = true;
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
@@ -193,7 +194,6 @@ class Visualizer {
     const texture = loader.load("textures/particle.png");
 
     const pMaterial = new THREE.PointsMaterial({
-      // color: 0xa8a9f0,
       color: 0xffffff,
       size: 5,
       // adding glowing particle image texture to each particle
@@ -259,10 +259,6 @@ class Visualizer {
 
 
     if (toggleCameraMove) {
-      // if (!camera.position.equals(pos0)) {
-        // this.camera.lookAt(new THREE.Vector3(0,20,0));
-        // TweenMax.to(camera.target, 5, { ease: Sine.easeInOut, x: 0, y: 20, z: 0 });
-      // }
       if (camera.position.equals(pos0)) {
         if (this.source && this.barCheck) {
           setTimeout(() => {
@@ -352,6 +348,7 @@ class Visualizer {
   }
 
   renderBars() {
+    // debugger
     this.barCheck = true;
     this.display.push("bars");
     const { scene, camera, renderer} = this;
@@ -396,9 +393,10 @@ class Visualizer {
       shininess: 10,
       reflectivity: 2.5
     });
+    let barMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
     for (let i = 0; i < this.numBars; i++) {
-      let bar = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      let bar = barMesh.clone();
       bar.material.opacity = 1;
       bar.material.transparent = true;
 
@@ -406,7 +404,7 @@ class Visualizer {
       bar.position.x = 40 * Math.sin(i * 2 * Math.PI / this.numBars);
       bar.position.y = 0;
       bar.position.z = 40 * Math.cos(i * 2 * Math.PI / this.numBars);
-      bar.castShadow = true; // might not be necessary for now
+      bar.castShadow = true;
       bar.name = "bar" + i;
       barGroup.add(bar);
     }
@@ -416,7 +414,6 @@ class Visualizer {
 
   animateBars() {
     const { scene, renderer, camera, tween, analyzer, numBars, display } = this;
-    let allBars = [];
 
     if (this.source) {
       // retrieve data from the frequency data from analyzer
@@ -431,11 +428,6 @@ class Visualizer {
         value = value < 1 ? 1 : value; // it gets mad if value < 1
         let bar = scene.getObjectByName("bar" + i);
         bar.scale.y = value;
-
-        if (display[display.length - 1] !== "bars") {
-          bar.material.opacity -= 0.000001;
-          allBars.push(bar);
-        }
       }
     }
 
@@ -497,16 +489,7 @@ class Visualizer {
       path2, 500, 20, 50, false);
     const numVertices = geometry1.attributes.position.count;
     const alphas = new Float32Array(numVertices * 1);
-    for (let i = 0; i < numVertices; i++) {
-      alphas[i] = 0.1;
-    }
 
-    geometry1.addAttribute(
-      "alpha", new THREE.BufferAttribute(alphas, 1));
-    geometry2.addAttribute(
-      "alpha", new THREE.BufferAttribute(alphas, 1));
-
-    const loader = new THREE.TextureLoader();
     const material1 = new THREE.PointsMaterial({
       size: 5,
       color: 0xff0000,
@@ -521,41 +504,45 @@ class Visualizer {
 
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
-    this.renderHelixOrbits();
+    this.renderOrbitLights();
     helixGroup.add(this.spiral1);
     helixGroup.add(this.spiral2);
+    this.helixGroup = helixGroup;
 
-    // helixGroup.add(orbits);
-
-    scene.add(helixGroup);
+    scene.add(this.helixGroup);
 
     TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
   }
 
-  renderHelixOrbits() {
-    const numLights = 20;
+  renderOrbitLights() {
+    this.orbitCheck = true;
+    const numLights = 10;
     const lightGroup = new THREE.Group();
+    lightGroup.name = "orbitLights";
     const bulbGeometry = new THREE.SphereGeometry(2, 16, 8);
     const bulbMaterial = new THREE.MeshStandardMaterial({
     	emissive: 0xffffee,
 			emissiveIntensity: 1,
 			color: 0x000000
 		});
+
+    let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
+    // let bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
+    bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
+
     for (let i = 0; i < numLights; i++) {
-      let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
-      bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
-      let x = 400 * Math.random() - 200;
-      let y = (200 - x) * Math.random() - (200 - x);
+      let bulb = bulbLight.clone();
+      let x = 300 * Math.random() - 150;
+      let y = 2 * (150 - Math.abs(x)) * Math.random() - (150 - Math.abs(x));
       let z = Math.sign(Math.random() - 0.5) *
         Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
-      let posArray = [x, y, z];
-      posArray = Util.shuffle(posArray);
-      bulbLight.position.set(posArray[0], posArray[1], posArray[2]);
-      bulbLight.castShadow = true;
-      lightGroup.add(bulbLight);
+      bulb.position.set(x, y, z);
+      // bulb.castShadow = true;
+      lightGroup.add(bulb);
     }
 
-    this.scene.add(lightGroup);
+    this.orbitLights = lightGroup;
+    this.scene.add(this.orbitLights);
   }
 
   animateHelix() {
@@ -563,55 +550,78 @@ class Visualizer {
     const { spiral1, spiral2 } = this;
 
     const numVertices = spiral1.geometry.attributes.position.count;
+    let dataArray;
 
     if (!this.source) {
       this.spiral1.rotation.x += 0.001;
       this.spiral2.rotation.x += 0.001;
     } else {
       const bufferLength = analyzer.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
+      dataArray = new Uint8Array(bufferLength);
       analyzer.getByteFrequencyData(dataArray);
       const beatRange =
         dataArray.slice(Math.round(dataArray.length * 2/3));
       const dataSum = beatRange.reduce((sum, value) => {
-        return sum + value;
+        return sum + Math.pow(value, 2);
       }, 0);
 
       const rmsVolume = 1 + Math.ceil(Math.sqrt(dataSum/dataArray.length));
       // console.log(rmsVolume);
 
-      this.spiral1.rotation.x += (0.13 * rmsVolume / 11);
-      this.spiral2.rotation.x += (0.13 * rmsVolume / 11);
+      this.spiral1.rotation.x += (0.1 * rmsVolume / 11);
+      this.spiral2.rotation.x += (0.1 * rmsVolume / 11);
 
       const freqInterval = Math.round(dataArray.length * 3/4 / (numVertices));
-
-      for (let i = 0; i < numVertices; i++) {
-        // this.spiral1.vertices[i].
-      }
     }
 
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
     renderer.render(this.scene, this.camera);
+    // this.animateOrbitLights(dataArray);
 
     if (display[display.length - 1] !== "helix") {
-      this.handleHelixRemoval();
+      this.removeHelix();
+      this.removeOrbitLights();
     }
   }
 
-  handleHelixRemoval() {
-    const helixGroup = this.scene.getObjectByName("helix");
+  animateOrbitLights(dataArray) {
 
-    if (this.helixCheck) {
-      TweenMax.to(helixGroup.position, 5, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
+  }
+
+  removeHelix() {
+    const { helixGroup, helixCheck, orbitLights } = this;
+
+    if (helixCheck) {
+      TweenMax.to(helixGroup.position, 3, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
       this.helixCheck = false;
     }
 
     if (helixGroup.position.equals(new THREE.Vector3(4000,0,0))) {
       const helixIdx = this.display.indexOf("helix");
       this.display.splice(helixIdx, 1);
-
       this.scene.remove(helixGroup);
+      this.scene.remove(orbitLights);
+    }
+  }
+
+  removeOrbitLights() {
+    const { orbitLights, orbitCheck } = this;
+    const self = this;
+
+    function setRemoveTimeout() {
+      setTimeout(() => {
+        self.scene.remove(orbitLights);
+      }, 3000);
+    }
+
+    if (orbitCheck && orbitLights) {
+      orbitLights.children.forEach(light => {
+        TweenMax.to(light.position, 3, { ease: Power3.easeIn, x: 0, y: 0, z: 0 });
+      });
+
+      this.orbitCheck = false;
+      // setRemoveTimeout();
     }
   }
 }
