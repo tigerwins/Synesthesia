@@ -39,6 +39,7 @@ class Visualizer {
     this.orbitLights;
     this.helixCheck = true;
     this.orbitCheck = true;
+    this.orbitCount = 0;
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
@@ -527,7 +528,6 @@ class Visualizer {
 		});
 
     let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
-    // let bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
     bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
 
     for (let i = 0; i < numLights; i++) {
@@ -537,6 +537,7 @@ class Visualizer {
       let z = Math.sign(Math.random() - 0.5) *
         Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
       bulb.position.set(x, y, z);
+      bulb.name = "light" + i;
       // bulb.castShadow = true;
       lightGroup.add(bulb);
     }
@@ -546,6 +547,7 @@ class Visualizer {
   }
 
   animateHelix() {
+    TweenMax.lagSmoothing(20, 20);
     const { display, camera, renderer, analyzer } = this;
     const { spiral1, spiral2 } = this;
 
@@ -565,19 +567,21 @@ class Visualizer {
         return sum + Math.pow(value, 2);
       }, 0);
 
+
       const rmsVolume = 1 + Math.ceil(Math.sqrt(dataSum/dataArray.length));
       // console.log(rmsVolume);
 
       this.spiral1.rotation.x += (0.1 * rmsVolume / 11);
       this.spiral2.rotation.x += (0.1 * rmsVolume / 11);
 
-      const freqInterval = Math.round(dataArray.length * 3/4 / (numVertices));
+    }
+    if (this.orbitCheck) {
+      this.animateOrbitLights(dataArray);
     }
 
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
     renderer.render(this.scene, this.camera);
-    // this.animateOrbitLights(dataArray);
 
     if (display[display.length - 1] !== "helix") {
       this.removeHelix();
@@ -586,6 +590,24 @@ class Visualizer {
   }
 
   animateOrbitLights(dataArray) {
+    const { scene, orbitLights } = this;
+    const numLights = orbitLights.children.length;
+
+    if (dataArray) {
+      const beatRange =
+        dataArray.slice(0, Math.round(Number(dataArray.length) * 1/3));
+      const dataSum = beatRange.reduce((sum, value) => {
+        return sum + Math.pow(value, 2);
+      });
+
+      const rmsVolume =
+        Math.floor(Math.sqrt(dataSum/dataArray.length))/10;
+      const bulb = scene.getObjectByName("light" + this.orbitCount);
+      bulb.scale.x = rmsVolume;
+      bulb.scale.y = rmsVolume;
+      bulb.scale.z = rmsVolume;
+      this.orbitCount = (1 + this.orbitCount) % numLights;
+    }
 
   }
 
@@ -618,10 +640,10 @@ class Visualizer {
     if (orbitCheck && orbitLights) {
       orbitLights.children.forEach(light => {
         TweenMax.to(light.position, 3, { ease: Power3.easeIn, x: 0, y: 0, z: 0 });
+        TweenMax.to(light.scale, 3, { ease: Power3.easeIn, x: 1, y: 1, z: 1 });
       });
 
       this.orbitCheck = false;
-      // setRemoveTimeout();
     }
   }
 }
