@@ -116,9 +116,6 @@ class Visualizer {
 
   play(audio) {
     this.audioContext.decodeAudioData(audio).then((buffer) => {
-      this.leftSource = buffer.getChannelData(0);
-      this.rightSource = buffer.getChannelData(1);
-      console.log
 
       let sourceNode = this.audioContext.createBufferSource();
 
@@ -135,6 +132,7 @@ class Visualizer {
 
       this.source = sourceNode;
       this.source.start(0);
+      console.log(this.audioContext.sampleRate);
     });
   }
 

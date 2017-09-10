@@ -327,9 +327,6 @@ var Visualizer = function () {
       var _this4 = this;
 
       this.audioContext.decodeAudioData(audio).then(function (buffer) {
-        _this4.leftSource = buffer.getChannelData(0);
-        _this4.rightSource = buffer.getChannelData(1);
-        console.log;
 
         var sourceNode = _this4.audioContext.createBufferSource();
 
@@ -346,6 +343,7 @@ var Visualizer = function () {
 
         _this4.source = sourceNode;
         _this4.source.start(0);
+        console.log(_this4.audioContext.sampleRate);
       });
     }
 
