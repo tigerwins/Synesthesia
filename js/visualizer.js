@@ -61,7 +61,7 @@ class Visualizer {
       window.cancelAnimationFrame ||
       window.webkitCancelAnimationFrame;
 
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
     this.analyzer = this.audioContext.createAnalyser();
     this.analyzer.fftSize = 2048;
 
@@ -115,7 +115,10 @@ class Visualizer {
   }
 
   play(audio) {
+    const self = this;
     this.audioContext.decodeAudioData(audio).then((buffer) => {
+
+
 
       let sourceNode = this.audioContext.createBufferSource();
 

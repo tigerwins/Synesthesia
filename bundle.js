@@ -260,7 +260,7 @@ var Visualizer = function () {
       window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
       window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
 
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
       this.analyzer = this.audioContext.createAnalyser();
       this.analyzer.fftSize = 2048;
 
@@ -326,6 +326,7 @@ var Visualizer = function () {
     value: function play(audio) {
       var _this4 = this;
 
+      var self = this;
       this.audioContext.decodeAudioData(audio).then(function (buffer) {
 
         var sourceNode = _this4.audioContext.createBufferSource();
