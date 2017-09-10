@@ -34,11 +34,15 @@ class Visualizer {
     // helix animation variables
     this.helixScale;
     this.spiral;
+    this.hue1 = 0;
     this.spiral2;
     this.helixGroup;
+    this.hue2 = 180;
+    this.hueChangeSpeed = 0.01;
     this.orbitLights;
     this.helixCheck = true;
     this.orbitCheck = true;
+
     this.orbitCount = 0;
 
     // method binding
@@ -62,6 +66,7 @@ class Visualizer {
     // analyzer.fftSize = 2048;
 
     this.setupRendering();
+    this.handleUpload();
   }
 
   loadAndPlaySample(url) {
@@ -87,6 +92,27 @@ class Visualizer {
     request.send();
 
     // request proceeds to download, readyState "LOADING"
+  }
+
+  handleUpload() {
+    const upload = document.getElementById("upload");
+
+    upload.onchange = () => {
+      if (upload.files.length > 0) {
+        console.log(upload.files);
+        this.readAudioFile(upload.files[0]);
+      }
+    };
+  }
+
+  readAudioFile(audioFile) {
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      console.log(e);
+      this.play(e.target.result);
+    };
+
+    fileReader.readAsArrayBuffer(audioFile);
   }
 
   play(audio) {
@@ -344,7 +370,6 @@ class Visualizer {
   }
 
   renderBars() {
-    // debugger
     this.barCheck = true;
     this.display.push("bars");
     const { scene, camera, renderer} = this;
@@ -410,6 +435,7 @@ class Visualizer {
 
   animateBars() {
     const { scene, renderer, camera, tween, analyzer, numBars, display } = this;
+    TweenMax.lagSmoothing(33, 33);
 
     if (this.source) {
       // retrieve data from the frequency data from analyzer
@@ -479,20 +505,47 @@ class Visualizer {
     const path1 = new SinCurve(50);
     const path2 = new CosCurve(50);
 
-    const geometry1 = new THREE.TubeBufferGeometry(
+    const geometry1 = new THREE.TubeGeometry(
       path1, 500, 20, 50, false);
-    const geometry2 = new THREE.TubeBufferGeometry(
+    const geometry2 = new THREE.TubeGeometry(
       path2, 500, 20, 50, false);
-    const numVertices = geometry1.attributes.position.count;
-    const alphas = new Float32Array(numVertices * 1);
+
+    const colors1 = [];
+    const colors2 = [];
+    const numVertices = geometry1.vertices.length;
+
+    for (let i = 0; i < numVertices; i++) {
+      colors1[i] = new THREE.Color();
+      colors2[i] = new THREE.Color();
+      colors1[i].setHSL(i / 100000, 1, 0.5);
+      colors2[i].setHSL(0.5 + i / 100000, 1, 0.5);
+      // colors1[i].setHSL(0, 1, 0.5);
+      // colors2[i].setHSL(0.5, 1, 0.5);
+    }
+
+    // trippy rainbow
+    // for (let i = 0; i < numVertices; i++) {
+    //   colors1[i] = new THREE.Color();
+    //   colors2[i] = new THREE.Color();
+    //   colors1[i].setHSL(i / 1000000 * 360, 1, 0.5);
+    //   colors2[i].setHSL(i / 1000000 * 360, 1, 0.5);
+    // }
+
+    geometry1.colors = colors1;
+    geometry2.colors = colors2;
 
     const material1 = new THREE.PointsMaterial({
       size: 5,
-      color: 0xff0000,
+      // transparent: true,
+      opacity: 0.7,
+      vertexColors: THREE.VertexColors
+
     });
     const material2 = new THREE.PointsMaterial({
       size: 5,
-      color: 0x00ff00,
+      // transparent: true,
+      opacity: 0.7,
+      vertexColors: THREE.VertexColors
     });
 
     const spiral1 = new THREE.Points(geometry1, material1);
@@ -500,7 +553,7 @@ class Visualizer {
 
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
-    this.renderOrbitLights();
+    // this.renderOrbitLights();
     helixGroup.add(this.spiral1);
     helixGroup.add(this.spiral2);
     this.helixGroup = helixGroup;
@@ -542,19 +595,18 @@ class Visualizer {
   }
 
   animateHelix() {
-    TweenMax.lagSmoothing(20, 20);
+    TweenMax.lagSmoothing(33, 33);
     const { display, camera, renderer, analyzer } = this;
-    const { spiral1, spiral2 } = this;
+    const { spiral1, spiral2, hueChangeSpeed } = this;
 
-    const numVertices = spiral1.geometry.attributes.position.count;
-    let dataArray;
+    // const numVertices = spiral1.geometry.attributes.position.count;
 
     if (!this.source) {
       this.spiral1.rotation.x += 0.001;
       this.spiral2.rotation.x += 0.001;
     } else {
       const bufferLength = analyzer.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
+      const dataArray = new Uint8Array(bufferLength);
       analyzer.getByteFrequencyData(dataArray);
       const beatRange =
         dataArray.slice(Math.round(dataArray.length * 2/3));
@@ -562,25 +614,29 @@ class Visualizer {
         return sum + Math.pow(value, 2);
       }, 0);
 
-
       const rmsVolume = 1 + Math.ceil(Math.sqrt(dataSum/dataArray.length));
       // console.log(rmsVolume);
 
       this.spiral1.rotation.x += (0.1 * rmsVolume / 11);
       this.spiral2.rotation.x += (0.1 * rmsVolume / 11);
+      this.hue1 += hueChangeSpeed;
+      this.hue2 += hueChangeSpeed;
+      this.spiral1.material.color.set("hsl(" + this.hue1 + ", 1, 0.5");
+      this.spiral2.material.color.set("hsl(" + this.hue2 + ", 1, 0.5");
 
     }
     if (this.orbitCheck) {
-      this.animateOrbitLights(dataArray);
+      // this.animateOrbitLights(dataArray);
     }
 
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
+    // console.log(this.spiral1);
     renderer.render(this.scene, this.camera);
 
     if (display[display.length - 1] !== "helix") {
       this.removeHelix();
-      this.removeOrbitLights();
+      // this.removeOrbitLights();
     }
   }
 
@@ -603,7 +659,6 @@ class Visualizer {
       bulb.scale.z = rmsVolume;
       this.orbitCount = (1 + this.orbitCount) % numLights;
     }
-
   }
 
   removeHelix() {
