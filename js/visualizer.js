@@ -38,7 +38,7 @@ class Visualizer {
     this.spiral2;
     this.helixGroup;
     // this.hue2 = 180;
-    this.hueChangeSpeed = 0.001;
+    this.hueChangeSpeed = 0.0001;
     // this.orbitLights;
     this.helixCheck = true;
     // this.orbitCheck = true;
@@ -608,36 +608,32 @@ class Visualizer {
       const bufferLength = analyzer.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyzer.getByteFrequencyData(dataArray);
-      const beatRange =
+      const highBeatRange =
+        dataArray.slice(0, Math.round(dataArray.length * 1/3));
+      const lowBeatRange =
         dataArray.slice(Math.round(dataArray.length * 2/3));
-      const dataSum = beatRange.reduce((sum, value) => {
+      const highDataSum = highBeatRange.reduce((sum, value) => {
+        return sum + Math.pow(value, 2);
+      }, 0);
+      const lowDataSum = lowBeatRange.reduce((sum, value) => {
         return sum + Math.pow(value, 2);
       }, 0);
 
-      const rmsVolume = 1 + Math.ceil(Math.sqrt(dataSum/dataArray.length));
-      // console.log(rmsVolume);
+      const rmsVolumeLow = 1 + Math.ceil(Math.sqrt(lowDataSum/dataArray.length));
+      const rmsVolumeHigh = 1 + Math.ceil(Math.sqrt(highDataSum/dataArray.length));
+      console.log(rmsVolumeHigh);
 
-      this.spiral1.rotation.x += (0.1 * rmsVolume / 11);
-      this.spiral2.rotation.x += (0.1 * rmsVolume / 11);
-      // this.hue1 += hueChangeSpeed;
-      // this.hue2 += hueChangeSpeed;
+      this.spiral1.rotation.x += (0.1 * rmsVolumeLow / 11);
+      this.spiral2.rotation.x += (0.1 * rmsVolumeLow / 11);
 
       const numVertices = this.spiral1.geometry.vertices.length;
       for (let i = 0; i < numVertices; i++) {
         const color1 = this.spiral1.geometry.colors[i].getHSL();
         const color2 = this.spiral2.geometry.colors[i].getHSL();
-        this.spiral1.geometry.colors[i].setHSL(color1.h + hueChangeSpeed, 1, 0.5);
-        // console.log(color1);
-        this.spiral2.geometry.colors[i].setHSL(color2.h + hueChangeSpeed, 1, 0.5);
+        this.spiral1.geometry.colors[i].setHSL(color1.h + hueChangeSpeed * rmsVolumeHigh, 1, 0.5);
+        this.spiral2.geometry.colors[i].setHSL(color2.h + hueChangeSpeed * rmsVolumeHigh, 1, 0.5);
       }
-
-      // this.spiral1.geometry.colors.set("hsl(" + this.hue1 + ", 1, 0.5");
-      // this.spiral2.geometry.colors.set("hsl(" + this.hue2 + ", 1, 0.5");
-
     }
-    // if (this.orbitCheck) {
-    //   // this.animateOrbitLights(dataArray);
-    // }
 
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
