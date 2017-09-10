@@ -261,49 +261,6 @@ class Visualizer {
     TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
   }
 
-  animateBarsCamera() {
-    const { camera, toggleCameraMove } = this;
-    const pos0 = new THREE.Vector3(0, 0, 150);
-    const pos1 = new THREE.Vector3(0, 250, 200);
-    const pos2 = new THREE.Vector3(150, 50, -100);
-    const pos3 = new THREE.Vector3(-75, 250, -50);
-    const pos4 = new THREE.Vector3(0, 50, 250);
-    const pos5 = new THREE.Vector3(150, 250, -75);
-    const pos6 = new THREE.Vector3(-150, 50, -100);
-
-    if (toggleCameraMove) {
-      if (camera.position.equals(pos0)) {
-        if (this.source && this.barCheck) {
-          setTimeout(() => {
-            TweenMax.to(camera.position, 5,
-              { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
-          }, 7000);
-          this.barCheck = false;
-        }
-      } else if (camera.position.equals(pos1)) {
-        TweenMax.to(camera.position, 10,
-          { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
-      } else if (camera.position.equals(pos2)) {
-        TweenMax.to(camera.position, 10,
-          { ease: Sine.easeInOut, x: -75, y: 250, z: -50 });
-      } else if (camera.position.equals(pos3)) {
-        TweenMax.to(camera.position, 10,
-            { ease: Sine.easeInOut, x: 0, y: 50, z: 250 });
-      } else if (camera.position.equals(pos4)) {
-        TweenMax.to(camera.position, 10,
-          { ease: Sine.easeInOut, x: 150, y: 250, z: -75 });
-      } else if (camera.position.equals(pos5)) {
-        TweenMax.to(camera.position, 10,
-          { ease: Sine.easeInOut, x: -150, y: 50, z: -100 });
-      } else if (camera.position.equals(pos6)) {
-        TweenMax.to(camera.position, 10,
-          { ease: Sine.easeInOut, x: 0, y: 250, z: 200});
-      }
-    } else {
-      TweenMax.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
-    }
-  }
-
   animate() {
     const { display } = this;
     this.camera.lookAt(new THREE.Vector3(0,0,0));
@@ -451,6 +408,49 @@ class Visualizer {
 
       const barGroup = scene.getObjectByName("bars");
       scene.remove(barGroup);
+    }
+  }
+
+  animateBarsCamera() {
+    const { camera, toggleCameraMove } = this;
+    const pos0 = new THREE.Vector3(0, 0, 150);
+    const pos1 = new THREE.Vector3(0, 250, 200);
+    const pos2 = new THREE.Vector3(150, 50, -100);
+    const pos3 = new THREE.Vector3(-75, 250, -50);
+    const pos4 = new THREE.Vector3(0, 50, 250);
+    const pos5 = new THREE.Vector3(150, 250, -75);
+    const pos6 = new THREE.Vector3(-150, 50, -100);
+
+    if (toggleCameraMove) {
+      if (camera.position.equals(pos0)) {
+        if (this.source && this.barCheck) {
+          setTimeout(() => {
+            TweenMax.to(camera.position, 5,
+              { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+          }, 7000);
+          this.barCheck = false;
+        }
+      } else if (camera.position.equals(pos1)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
+      } else if (camera.position.equals(pos2)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: -75, y: 250, z: -50 });
+      } else if (camera.position.equals(pos3)) {
+        TweenMax.to(camera.position, 10,
+            { ease: Sine.easeInOut, x: 0, y: 50, z: 250 });
+      } else if (camera.position.equals(pos4)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: 150, y: 250, z: -75 });
+      } else if (camera.position.equals(pos5)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: -150, y: 50, z: -100 });
+      } else if (camera.position.equals(pos6)) {
+        TweenMax.to(camera.position, 10,
+          { ease: Sine.easeInOut, x: 0, y: 250, z: 200});
+      }
+    } else {
+      TweenMax.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
     }
   }
 

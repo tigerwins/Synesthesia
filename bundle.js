@@ -488,45 +488,6 @@ var Visualizer = function () {
       _gsap2.default.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
     }
   }, {
-    key: 'animateBarsCamera',
-    value: function animateBarsCamera() {
-      var camera = this.camera,
-          toggleCameraMove = this.toggleCameraMove;
-
-      var pos0 = new THREE.Vector3(0, 0, 150);
-      var pos1 = new THREE.Vector3(0, 250, 200);
-      var pos2 = new THREE.Vector3(150, 50, -100);
-      var pos3 = new THREE.Vector3(-75, 250, -50);
-      var pos4 = new THREE.Vector3(0, 50, 250);
-      var pos5 = new THREE.Vector3(150, 250, -75);
-      var pos6 = new THREE.Vector3(-150, 50, -100);
-
-      if (toggleCameraMove) {
-        if (camera.position.equals(pos0)) {
-          if (this.source && this.barCheck) {
-            setTimeout(function () {
-              _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
-            }, 7000);
-            this.barCheck = false;
-          }
-        } else if (camera.position.equals(pos1)) {
-          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
-        } else if (camera.position.equals(pos2)) {
-          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: -75, y: 250, z: -50 });
-        } else if (camera.position.equals(pos3)) {
-          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 0, y: 50, z: 250 });
-        } else if (camera.position.equals(pos4)) {
-          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 150, y: 250, z: -75 });
-        } else if (camera.position.equals(pos5)) {
-          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: -150, y: 50, z: -100 });
-        } else if (camera.position.equals(pos6)) {
-          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
-        }
-      } else {
-        _gsap2.default.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
-      }
-    }
-  }, {
     key: 'animate',
     value: function animate() {
       var display = this.display;
@@ -693,6 +654,45 @@ var Visualizer = function () {
 
         var barGroup = scene.getObjectByName("bars");
         scene.remove(barGroup);
+      }
+    }
+  }, {
+    key: 'animateBarsCamera',
+    value: function animateBarsCamera() {
+      var camera = this.camera,
+          toggleCameraMove = this.toggleCameraMove;
+
+      var pos0 = new THREE.Vector3(0, 0, 150);
+      var pos1 = new THREE.Vector3(0, 250, 200);
+      var pos2 = new THREE.Vector3(150, 50, -100);
+      var pos3 = new THREE.Vector3(-75, 250, -50);
+      var pos4 = new THREE.Vector3(0, 50, 250);
+      var pos5 = new THREE.Vector3(150, 250, -75);
+      var pos6 = new THREE.Vector3(-150, 50, -100);
+
+      if (toggleCameraMove) {
+        if (camera.position.equals(pos0)) {
+          if (this.source && this.barCheck) {
+            setTimeout(function () {
+              _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+            }, 7000);
+            this.barCheck = false;
+          }
+        } else if (camera.position.equals(pos1)) {
+          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
+        } else if (camera.position.equals(pos2)) {
+          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: -75, y: 250, z: -50 });
+        } else if (camera.position.equals(pos3)) {
+          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 0, y: 50, z: 250 });
+        } else if (camera.position.equals(pos4)) {
+          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 150, y: 250, z: -75 });
+        } else if (camera.position.equals(pos5)) {
+          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: -150, y: 50, z: -100 });
+        } else if (camera.position.equals(pos6)) {
+          _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+        }
+      } else {
+        _gsap2.default.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
       }
     }
   }, {
