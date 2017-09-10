@@ -140,6 +140,8 @@ ul.visualizations {
 
 ul.menu.open {
   display: flex;
+  visibility: visible;
+  transition: 0.4s;
   flex-direction: column;
 }
 
