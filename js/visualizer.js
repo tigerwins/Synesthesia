@@ -34,16 +34,16 @@ class Visualizer {
     // helix animation variables
     this.helixScale;
     this.spiral;
-    this.hue1 = 0;
+    // this.hue1 = 0;
     this.spiral2;
     this.helixGroup;
-    this.hue2 = 180;
-    this.hueChangeSpeed = 0.01;
-    this.orbitLights;
+    // this.hue2 = 180;
+    this.hueChangeSpeed = 0.001;
+    // this.orbitLights;
     this.helixCheck = true;
-    this.orbitCheck = true;
+    // this.orbitCheck = true;
 
-    this.orbitCount = 0;
+    // this.orbitCount = 0;
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
@@ -563,36 +563,36 @@ class Visualizer {
     TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
   }
 
-  renderOrbitLights() {
-    this.orbitCheck = true;
-    const numLights = 10;
-    const lightGroup = new THREE.Group();
-    lightGroup.name = "orbitLights";
-    const bulbGeometry = new THREE.SphereGeometry(2, 16, 8);
-    const bulbMaterial = new THREE.MeshStandardMaterial({
-    	emissive: 0xffffee,
-			emissiveIntensity: 1,
-			color: 0x000000
-		});
-
-    let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
-    bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
-
-    for (let i = 0; i < numLights; i++) {
-      let bulb = bulbLight.clone();
-      let x = 300 * Math.random() - 150;
-      let y = 2 * (150 - Math.abs(x)) * Math.random() - (150 - Math.abs(x));
-      let z = Math.sign(Math.random() - 0.5) *
-        Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
-      bulb.position.set(x, y, z);
-      bulb.name = "light" + i;
-      bulb.castShadow = true;
-      lightGroup.add(bulb);
-    }
-
-    this.orbitLights = lightGroup;
-    this.scene.add(this.orbitLights);
-  }
+  // renderOrbitLights() {
+  //   this.orbitCheck = true;
+  //   const numLights = 10;
+  //   const lightGroup = new THREE.Group();
+  //   lightGroup.name = "orbitLights";
+  //   const bulbGeometry = new THREE.SphereGeometry(2, 16, 8);
+  //   const bulbMaterial = new THREE.MeshStandardMaterial({
+  //   	emissive: 0xffffee,
+	// 		emissiveIntensity: 1,
+	// 		color: 0x000000
+	// 	});
+  //
+  //   let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
+  //   bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
+  //
+  //   for (let i = 0; i < numLights; i++) {
+  //     let bulb = bulbLight.clone();
+  //     let x = 300 * Math.random() - 150;
+  //     let y = 2 * (150 - Math.abs(x)) * Math.random() - (150 - Math.abs(x));
+  //     let z = Math.sign(Math.random() - 0.5) *
+  //       Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
+  //     bulb.position.set(x, y, z);
+  //     bulb.name = "light" + i;
+  //     bulb.castShadow = true;
+  //     lightGroup.add(bulb);
+  //   }
+  //
+  //   this.orbitLights = lightGroup;
+  //   this.scene.add(this.orbitLights);
+  // }
 
   animateHelix() {
     TweenMax.lagSmoothing(33, 33);
@@ -619,18 +619,30 @@ class Visualizer {
 
       this.spiral1.rotation.x += (0.1 * rmsVolume / 11);
       this.spiral2.rotation.x += (0.1 * rmsVolume / 11);
-      this.hue1 += hueChangeSpeed;
-      this.hue2 += hueChangeSpeed;
-      this.spiral1.material.color.set("hsl(" + this.hue1 + ", 1, 0.5");
-      this.spiral2.material.color.set("hsl(" + this.hue2 + ", 1, 0.5");
+      // this.hue1 += hueChangeSpeed;
+      // this.hue2 += hueChangeSpeed;
+
+      const numVertices = this.spiral1.geometry.vertices.length;
+      for (let i = 0; i < numVertices; i++) {
+        const color1 = this.spiral1.geometry.colors[i].getHSL();
+        const color2 = this.spiral2.geometry.colors[i].getHSL();
+        this.spiral1.geometry.colors[i].setHSL(color1.h + hueChangeSpeed, 1, 0.5);
+        // console.log(color1);
+        this.spiral2.geometry.colors[i].setHSL(color2.h + hueChangeSpeed, 1, 0.5);
+      }
+
+      // this.spiral1.geometry.colors.set("hsl(" + this.hue1 + ", 1, 0.5");
+      // this.spiral2.geometry.colors.set("hsl(" + this.hue2 + ", 1, 0.5");
 
     }
-    if (this.orbitCheck) {
-      // this.animateOrbitLights(dataArray);
-    }
+    // if (this.orbitCheck) {
+    //   // this.animateOrbitLights(dataArray);
+    // }
 
     this.spiral1.geometry.verticesNeedUpdate = true;
     this.spiral2.geometry.verticesNeedUpdate = true;
+    this.spiral1.geometry.colorsNeedUpdate = true;
+    this.spiral2.geometry.colorsNeedUpdate = true;
     // console.log(this.spiral1);
     renderer.render(this.scene, this.camera);
 
@@ -640,29 +652,30 @@ class Visualizer {
     }
   }
 
-  animateOrbitLights(dataArray) {
-    const { scene, orbitLights } = this;
-    const numLights = orbitLights.children.length;
-
-    if (dataArray) {
-      const beatRange =
-        dataArray.slice(0, Math.round(Number(dataArray.length) * 1/3));
-      const dataSum = beatRange.reduce((sum, value) => {
-        return sum + Math.pow(value, 2);
-      });
-
-      const rmsVolume =
-        Math.floor(Math.sqrt(dataSum/dataArray.length))/10;
-      const bulb = scene.getObjectByName("light" + this.orbitCount);
-      bulb.scale.x = rmsVolume;
-      bulb.scale.y = rmsVolume;
-      bulb.scale.z = rmsVolume;
-      this.orbitCount = (1 + this.orbitCount) % numLights;
-    }
-  }
+  // animateOrbitLights(dataArray) {
+  //   const { scene, orbitLights } = this;
+  //   const numLights = orbitLights.children.length;
+  //
+  //   if (dataArray) {
+  //     const beatRange =
+  //       dataArray.slice(0, Math.round(Number(dataArray.length) * 1/3));
+  //     const dataSum = beatRange.reduce((sum, value) => {
+  //       return sum + Math.pow(value, 2);
+  //     });
+  //
+  //     const rmsVolume =
+  //       Math.floor(Math.sqrt(dataSum/dataArray.length))/10;
+  //     const bulb = scene.getObjectByName("light" + this.orbitCount);
+  //     bulb.scale.x = rmsVolume;
+  //     bulb.scale.y = rmsVolume;
+  //     bulb.scale.z = rmsVolume;
+  //     this.orbitCount = (1 + this.orbitCount) % numLights;
+  //   }
+  // }
 
   removeHelix() {
-    const { helixGroup, helixCheck, orbitLights } = this;
+    const { helixGroup, helixCheck } = this;
+    //  orbitLights
 
     if (helixCheck) {
       TweenMax.to(helixGroup.position, 3, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
@@ -673,29 +686,29 @@ class Visualizer {
       const helixIdx = this.display.indexOf("helix");
       this.display.splice(helixIdx, 1);
       this.scene.remove(helixGroup);
-      this.scene.remove(orbitLights);
+      // this.scene.remove(orbitLights);
     }
   }
 
-  removeOrbitLights() {
-    const { orbitLights, orbitCheck } = this;
-    const self = this;
-
-    function setRemoveTimeout() {
-      setTimeout(() => {
-        self.scene.remove(orbitLights);
-      }, 3000);
-    }
-
-    if (orbitCheck && orbitLights) {
-      orbitLights.children.forEach(light => {
-        TweenMax.to(light.position, 3, { ease: Power3.easeIn, x: 0, y: 0, z: 0 });
-        TweenMax.to(light.scale, 3, { ease: Power3.easeIn, x: 1, y: 1, z: 1 });
-      });
-
-      this.orbitCheck = false;
-    }
-  }
+  // removeOrbitLights() {
+  //   const { orbitLights, orbitCheck } = this;
+  //   const self = this;
+  //
+  //   function setRemoveTimeout() {
+  //     setTimeout(() => {
+  //       self.scene.remove(orbitLights);
+  //     }, 3000);
+  //   }
+  //
+  //   if (orbitCheck && orbitLights) {
+  //     orbitLights.children.forEach(light => {
+  //       TweenMax.to(light.position, 3, { ease: Power3.easeIn, x: 0, y: 0, z: 0 });
+  //       TweenMax.to(light.scale, 3, { ease: Power3.easeIn, x: 1, y: 1, z: 1 });
+  //     });
+  //
+  //     this.orbitCheck = false;
+  //   }
+  // }
 }
 
 export default Visualizer;
