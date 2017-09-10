@@ -347,10 +347,6 @@ var Visualizer = function () {
 
         _this4.source = sourceNode;
         _this4.source.start(0);
-
-        // if (this.animation) {
-        //   cancelAnimationFrame(this.animation);
-        // }
       });
     }
 
@@ -455,15 +451,12 @@ var Visualizer = function () {
         var particle = new THREE.Vector3(pX, pY, pZ);
         particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
 
-        // add particle to geometry
         particles.vertices.push(particle);
       }
 
       this.particles = particles;
-      // create particle system
       this.particleSystem = new THREE.Points(particles, pMaterial);
       this.particleSystem.sortParticles = true;
-
       this.scene.add(this.particleSystem);
     }
   }, {
@@ -552,7 +545,6 @@ var Visualizer = function () {
       }
       if (display.includes("helix")) {
         this.animateHelix();
-        // this.camera.lookAt(new THREE.Vector3(0,0,0));
       }
 
       requestAnimationFrame(this.animate);
@@ -762,8 +754,6 @@ var Visualizer = function () {
         colors2[i] = new THREE.Color();
         colors1[i].setHSL(i / 100000, 1, 0.5);
         colors2[i].setHSL(0.5 + i / 100000, 1, 0.5);
-        // colors1[i].setHSL(0, 1, 0.5);
-        // colors2[i].setHSL(0.5, 1, 0.5);
       }
 
       // trippy rainbow
@@ -779,14 +769,12 @@ var Visualizer = function () {
 
       var material1 = new THREE.PointsMaterial({
         size: 5,
-        // transparent: true,
         opacity: 0.7,
         vertexColors: THREE.VertexColors
 
       });
       var material2 = new THREE.PointsMaterial({
         size: 5,
-        // transparent: true,
         opacity: 0.7,
         vertexColors: THREE.VertexColors
       });
@@ -796,7 +784,6 @@ var Visualizer = function () {
 
       this.spiral1 = spiral1;
       this.spiral2 = spiral2;
-      // this.renderOrbitLights();
       helixGroup.add(this.spiral1);
       helixGroup.add(this.spiral2);
       this.helixGroup = helixGroup;
@@ -849,7 +836,6 @@ var Visualizer = function () {
           spiral2 = this.spiral2,
           hueChangeSpeed = this.hueChangeSpeed;
 
-      // const numVertices = spiral1.geometry.attributes.position.count;
 
       if (!this.source) {
         this.spiral1.rotation.x += 0.001;
@@ -869,7 +855,6 @@ var Visualizer = function () {
 
         var rmsVolumeLow = 1 + Math.ceil(Math.sqrt(lowDataSum / dataArray.length));
         var rmsVolumeHigh = 1 + Math.ceil(Math.sqrt(highDataSum / dataArray.length));
-        console.log(rmsVolumeHigh);
 
         this.spiral1.rotation.x += 0.1 * rmsVolumeLow / 11;
         this.spiral2.rotation.x += 0.1 * rmsVolumeLow / 11;

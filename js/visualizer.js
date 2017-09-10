@@ -136,10 +136,6 @@ class Visualizer {
 
       this.source = sourceNode;
       this.source.start(0);
-
-      // if (this.animation) {
-      //   cancelAnimationFrame(this.animation);
-      // }
     });
   }
 
@@ -233,16 +229,12 @@ class Visualizer {
       let particle = new THREE.Vector3(pX, pY, pZ);
       particle.velocity = new THREE.Vector3(0, -Math.random() * 1.5, 0);
 
-      // add particle to geometry
       particles.vertices.push(particle);
     }
 
     this.particles = particles;
-    // create particle system
-    this.particleSystem = new THREE.Points(
-      particles, pMaterial);
+    this.particleSystem = new THREE.Points(particles, pMaterial);
     this.particleSystem.sortParticles = true;
-
     this.scene.add(this.particleSystem);
   }
 
@@ -278,7 +270,6 @@ class Visualizer {
     const pos4 = new THREE.Vector3(0, 50, 250);
     const pos5 = new THREE.Vector3(150, 250, -75);
     const pos6 = new THREE.Vector3(-150, 50, -100);
-
 
     if (toggleCameraMove) {
       if (camera.position.equals(pos0)) {
@@ -329,7 +320,6 @@ class Visualizer {
     }
     if (display.includes("helix")) {
       this.animateHelix();
-      // this.camera.lookAt(new THREE.Vector3(0,0,0));
     }
 
     requestAnimationFrame(this.animate);
@@ -519,8 +509,6 @@ class Visualizer {
       colors2[i] = new THREE.Color();
       colors1[i].setHSL(i / 100000, 1, 0.5);
       colors2[i].setHSL(0.5 + i / 100000, 1, 0.5);
-      // colors1[i].setHSL(0, 1, 0.5);
-      // colors2[i].setHSL(0.5, 1, 0.5);
     }
 
     // trippy rainbow
@@ -536,14 +524,12 @@ class Visualizer {
 
     const material1 = new THREE.PointsMaterial({
       size: 5,
-      // transparent: true,
       opacity: 0.7,
       vertexColors: THREE.VertexColors
 
     });
     const material2 = new THREE.PointsMaterial({
       size: 5,
-      // transparent: true,
       opacity: 0.7,
       vertexColors: THREE.VertexColors
     });
@@ -553,7 +539,6 @@ class Visualizer {
 
     this.spiral1 = spiral1;
     this.spiral2 = spiral2;
-    // this.renderOrbitLights();
     helixGroup.add(this.spiral1);
     helixGroup.add(this.spiral2);
     this.helixGroup = helixGroup;
@@ -599,8 +584,6 @@ class Visualizer {
     const { display, camera, renderer, analyzer } = this;
     const { spiral1, spiral2, hueChangeSpeed } = this;
 
-    // const numVertices = spiral1.geometry.attributes.position.count;
-
     if (!this.source) {
       this.spiral1.rotation.x += 0.001;
       this.spiral2.rotation.x += 0.001;
@@ -621,7 +604,6 @@ class Visualizer {
 
       const rmsVolumeLow = 1 + Math.ceil(Math.sqrt(lowDataSum/dataArray.length));
       const rmsVolumeHigh = 1 + Math.ceil(Math.sqrt(highDataSum/dataArray.length));
-      console.log(rmsVolumeHigh);
 
       this.spiral1.rotation.x += (0.1 * rmsVolumeLow / 11);
       this.spiral2.rotation.x += (0.1 * rmsVolumeLow / 11);
