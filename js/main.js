@@ -66,22 +66,26 @@ $(() => {
   $(".reset").click(() => {
     visualizer.resetLights();
   });
+
   $(".blank").click(() => {
     visualizer.renderBlank();
   });
+
   $(".bars").click(() => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
   });
+
+  // $(".rings").click(() => {
+  // visualizer.display.push("fountain");
+  // });
+
   $(".helix").click(() => {
     if (display[display.length - 1] !== "helix") {
       visualizer.renderHelix();
     }
   });
-  // $(".rings").click(() => {
-    // visualizer.display.push("fountain");
-  // });
 
   $(window).resize(visualizer.onWindowResize);
 
