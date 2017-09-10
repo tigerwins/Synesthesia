@@ -262,7 +262,7 @@ var Visualizer = function () {
 
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.analyzer = this.audioContext.createAnalyser();
-      // analyzer.fftSize = 2048;
+      this.analyzer.fftSize = 2048;
 
       this.setupRendering();
       this.handleUpload();
@@ -275,7 +275,6 @@ var Visualizer = function () {
       var request = new XMLHttpRequest();
       // current readyState "UNSENT"
       this.currentFile = url.slice(6);
-      // console.log(this.currentFile);
 
       // opens an HTTP request, readyState "OPENED"
       request.open("GET", url);
@@ -872,7 +871,6 @@ var Visualizer = function () {
       this.spiral2.geometry.verticesNeedUpdate = true;
       this.spiral1.geometry.colorsNeedUpdate = true;
       this.spiral2.geometry.colorsNeedUpdate = true;
-      // console.log(this.spiral1);
       renderer.render(this.scene, this.camera);
 
       if (display[display.length - 1] !== "helix") {
