@@ -6,9 +6,8 @@ class Visualizer {
   constructor() {
     // Web Audio API variables
     this.audioContext;
+    this.offlineContext;
     this.source;
-    this.leftSource;
-    this.rightSource;
     this.currentFile;
     this.playbackText;
     this.container = document.getElementById("container");
@@ -61,7 +60,7 @@ class Visualizer {
       window.cancelAnimationFrame ||
       window.webkitCancelAnimationFrame;
 
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     this.analyzer = this.audioContext.createAnalyser();
     this.analyzer.fftSize = 2048;
 
@@ -114,28 +113,51 @@ class Visualizer {
     fileReader.readAsArrayBuffer(audioFile);
   }
 
-  play(audio) {
+  play(audioData) {
     const self = this;
-    this.audioContext.decodeAudioData(audio).then((buffer) => {
+    this.audioContext.decodeAudioData(audioData).then((buffer) => {
+      self.offlineContext = new OfflineAudioContext(2, 44100 * buffer.length, 44100);
 
+      const sourceNode =  self.offlineContext.createBufferSource();
+      // let sourceNode = this.audioContext.createBufferSource();
+      sourceNode.buffer = buffer;
+      sourceNode.connect(self.offlineContext.destination);
+      sourceNode.start();
 
+      self.offlineContext.startRendering().then((renderedBuffer) => {
+        console.log("rendering complete");
+        console.log(renderedBuffer);
 
-      let sourceNode = this.audioContext.createBufferSource();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        const audio = audioCtx.createBufferSource();
+        audio.buffer = renderedBuffer;
+        audio.connect(audioCtx.destination);
+
+        if (self.source) {
+          self.source.stop(0);
+        }
+
+        self.source = sourceNode;
+        self.source.start(0);
+        // console.log(self.audioContext.sampleRate);
+      });
+
+      // console.log(buffer.length);
 
       // connect source to analyzer and
       // analyzer to audio context destination
-      sourceNode.buffer = buffer;
-      sourceNode.connect(this.analyzer);
-      this.analyzer.connect(this.audioContext.destination);
+      // sourceNode.connect(this.analyzer);
+      // this.analyzer.connect(this.audioContext.destination);
 
       // stop previous song if currently playing
-      if (this.source) {
-        this.source.stop(0);
-      }
-
-      this.source = sourceNode;
-      this.source.start(0);
-      console.log(this.audioContext.sampleRate);
+      // if (this.source) {
+      //   this.source.stop(0);
+      // }
+      //
+      // this.source = sourceNode;
+      // this.source.start(0);
+      // console.log(this.audioContext.sampleRate);
     });
   }
 

@@ -207,9 +207,8 @@ var Visualizer = function () {
 
     // Web Audio API variables
     this.audioContext;
+    this.offlineContext;
     this.source;
-    this.leftSource;
-    this.rightSource;
     this.currentFile;
     this.playbackText;
     this.container = document.getElementById("container");
@@ -260,7 +259,7 @@ var Visualizer = function () {
       window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
       window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
 
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.analyzer = this.audioContext.createAnalyser();
       this.analyzer.fftSize = 2048;
 
@@ -323,28 +322,51 @@ var Visualizer = function () {
     }
   }, {
     key: 'play',
-    value: function play(audio) {
-      var _this4 = this;
-
+    value: function play(audioData) {
       var self = this;
-      this.audioContext.decodeAudioData(audio).then(function (buffer) {
+      this.audioContext.decodeAudioData(audioData).then(function (buffer) {
+        self.offlineContext = new OfflineAudioContext(2, 44100 * buffer.length, 44100);
 
-        var sourceNode = _this4.audioContext.createBufferSource();
+        var sourceNode = self.offlineContext.createBufferSource();
+        // let sourceNode = this.audioContext.createBufferSource();
+        sourceNode.buffer = buffer;
+        sourceNode.connect(self.offlineContext.destination);
+        sourceNode.start();
+
+        self.offlineContext.startRendering().then(function (renderedBuffer) {
+          console.log("rendering complete");
+          console.log(renderedBuffer);
+
+          var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+          var audio = audioCtx.createBufferSource();
+          audio.buffer = renderedBuffer;
+          audio.connect(audioCtx.destination);
+
+          if (self.source) {
+            self.source.stop(0);
+          }
+
+          self.source = sourceNode;
+          self.source.start(0);
+          // console.log(self.audioContext.sampleRate);
+        });
+
+        // console.log(buffer.length);
 
         // connect source to analyzer and
         // analyzer to audio context destination
-        sourceNode.buffer = buffer;
-        sourceNode.connect(_this4.analyzer);
-        _this4.analyzer.connect(_this4.audioContext.destination);
+        // sourceNode.connect(this.analyzer);
+        // this.analyzer.connect(this.audioContext.destination);
 
         // stop previous song if currently playing
-        if (_this4.source) {
-          _this4.source.stop(0);
-        }
-
-        _this4.source = sourceNode;
-        _this4.source.start(0);
-        console.log(_this4.audioContext.sampleRate);
+        // if (this.source) {
+        //   this.source.stop(0);
+        // }
+        //
+        // this.source = sourceNode;
+        // this.source.start(0);
+        // console.log(this.audioContext.sampleRate);
       });
     }
 
@@ -369,12 +391,12 @@ var Visualizer = function () {
   }, {
     key: 'stop',
     value: function stop() {
-      var _this5 = this;
+      var _this4 = this;
 
       if (this.audioContext) {
         this.source.stop(0);
         setTimeout(function () {
-          _this5.source = null;
+          _this4.source = null;
         }, 2000);
         this.resume();
       }
