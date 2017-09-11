@@ -18,6 +18,8 @@ class Visualizer {
     this.renderer;
     this.camera;
     this.display = [];
+    this.animation;
+    this.cameraTween;
 
     // rendering variables
     this.particleSystem;
@@ -106,14 +108,21 @@ class Visualizer {
         this.source.stop(0);
       }
 
+      this.source = sourceNode;
+      this.source.start(0);
+
+      this.source.onended = function() {
+        this.source = null;
+        $(".audio-btn").each(function() {
+          $(this).addClass("null");
+        });
+      };
+
       $(".audio-btn").each(function () {
-        $(this).removeClass("selected");
+        $(this).removeClass("null");
       });
 
       $(".fa-play").addClass("selected");
-
-      this.source = sourceNode;
-      this.source.start(0);
     });
   }
 
@@ -122,6 +131,8 @@ class Visualizer {
       $(".fa-play").addClass("selected");
       this.audioContext.resume();
       this.playbackText = "Playing";
+      this.cameraTween.resume();
+      this.animation = requestAnimationFrame(this.animate);
     }
   }
 
@@ -130,6 +141,8 @@ class Visualizer {
       $(".fa-pause").addClass("selected");
       this.audioContext.suspend();
       this.playbackText = "Paused";
+      this.cameraTween.pause();
+      cancelAnimationFrame(this.animation);
     }
   }
 
@@ -232,7 +245,7 @@ class Visualizer {
       particles.vertices[i] = particle;
     }
 
-    TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
+    this.cameraTween = TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
   }
 
   animate() {
@@ -253,7 +266,7 @@ class Visualizer {
       this.animateHelix();
     }
 
-    requestAnimationFrame(this.animate);
+    this.animation = requestAnimationFrame(this.animate);
   }
 
   animateLights() {
@@ -295,7 +308,7 @@ class Visualizer {
 
     const pos0 = new THREE.Vector3(0, 0, 150);
     if (!camera.position.equals(pos0)) {
-      TweenMax.to(camera.position, 5,
+      this.cameraTween = TweenMax.to(camera.position, 5,
         { ease: Sine.easeInOut, x: 0, y: 0, z: 150 });
     }
 
@@ -392,32 +405,32 @@ class Visualizer {
       if (camera.position.equals(pos0)) {
         if (this.source && this.barCheck) {
           setTimeout(() => {
-            TweenMax.to(camera.position, 5,
+            this.cameraTween = TweenMax.to(camera.position, 5,
               { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
           }, 7000);
           this.barCheck = false;
         }
       } else if (camera.position.equals(pos1)) {
-        TweenMax.to(camera.position, 10,
+        this.cameraTween = TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
       } else if (camera.position.equals(pos2)) {
-        TweenMax.to(camera.position, 10,
+        this.cameraTween = TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: -75, y: 250, z: -50 });
       } else if (camera.position.equals(pos3)) {
-        TweenMax.to(camera.position, 10,
+        this.cameraTween = TweenMax.to(camera.position, 10,
             { ease: Sine.easeInOut, x: 0, y: 50, z: 250 });
       } else if (camera.position.equals(pos4)) {
-        TweenMax.to(camera.position, 10,
+        this.cameraTween = TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: 150, y: 250, z: -75 });
       } else if (camera.position.equals(pos5)) {
-        TweenMax.to(camera.position, 10,
+        this.cameraTween = TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: -150, y: 50, z: -100 });
       } else if (camera.position.equals(pos6)) {
-        TweenMax.to(camera.position, 10,
+        this.cameraTween = TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: 0, y: 250, z: 200});
       }
     } else {
-      TweenMax.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
+      this.cameraTween = TweenMax.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
     }
   }
 
@@ -512,7 +525,7 @@ class Visualizer {
 
     scene.add(this.helixGroup);
 
-    TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
+    this.cameraTween = TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
   }
 
   animateHelix() {
@@ -568,7 +581,7 @@ class Visualizer {
     const { helixGroup, helixCheck } = this;
 
     if (helixCheck) {
-      TweenMax.to(helixGroup.position, 3, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
+      this.cameraTween = TweenMax.to(helixGroup.position, 3, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
       this.helixCheck = false;
     }
 
