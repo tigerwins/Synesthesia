@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import TweenMax from 'gsap';
 import * as Util from './util';
+import resampler from 'audio-resampler';
 
 class Visualizer {
   constructor() {
@@ -116,48 +117,26 @@ class Visualizer {
   play(audioData) {
     const self = this;
     this.audioContext.decodeAudioData(audioData).then((buffer) => {
-      self.offlineContext = new OfflineAudioContext(2, 44100 * buffer.length, 44100);
+      const sourceNode = this.audioContext.createBufferSource();
 
-      const sourceNode =  self.offlineContext.createBufferSource();
-      // let sourceNode = this.audioContext.createBufferSource();
-      sourceNode.buffer = buffer;
-      sourceNode.connect(self.offlineContext.destination);
-      sourceNode.start();
-
-      self.offlineContext.startRendering().then((renderedBuffer) => {
-        console.log("rendering complete");
-        console.log(renderedBuffer);
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        const audio = audioCtx.createBufferSource();
-        audio.buffer = renderedBuffer;
-        audio.connect(audioCtx.destination);
-
-        if (self.source) {
-          self.source.stop(0);
-        }
-
-        self.source = sourceNode;
-        self.source.start(0);
-        // console.log(self.audioContext.sampleRate);
+      // resample all songs to 44100
+      resampler(buffer, 44100, (e) => {
+        sourceNode.buffer = e.getAudioBuffer();
       });
-
-      // console.log(buffer.length);
 
       // connect source to analyzer and
       // analyzer to audio context destination
-      // sourceNode.connect(this.analyzer);
-      // this.analyzer.connect(this.audioContext.destination);
+      sourceNode.connect(this.analyzer);
+      this.analyzer.connect(this.audioContext.destination);
 
       // stop previous song if currently playing
-      // if (this.source) {
-      //   this.source.stop(0);
-      // }
-      //
-      // this.source = sourceNode;
-      // this.source.start(0);
-      // console.log(this.audioContext.sampleRate);
+      if (this.source) {
+        this.source.stop(0);
+      }
+
+      this.source = sourceNode;
+      this.source.start(0);
+      console.log(this.audioContext.sampleRate);
     });
   }
 
