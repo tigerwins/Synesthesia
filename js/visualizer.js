@@ -98,7 +98,6 @@ class Visualizer {
 
     upload.onchange = () => {
       if (upload.files.length > 0) {
-        console.log(upload.files);
         this.readAudioFile(upload.files[0]);
       }
     };
@@ -107,7 +106,6 @@ class Visualizer {
   readAudioFile(audioFile) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
-      console.log(e);
       this.play(e.target.result);
     };
 
@@ -136,7 +134,6 @@ class Visualizer {
 
       this.source = sourceNode;
       this.source.start(0);
-      console.log(this.audioContext.sampleRate);
     });
   }
 
@@ -626,7 +623,6 @@ class Visualizer {
 
     if (display[display.length - 1] !== "helix") {
       this.removeHelix();
-      // this.removeOrbitLights();
     }
   }
 
@@ -653,7 +649,6 @@ class Visualizer {
 
   removeHelix() {
     const { helixGroup, helixCheck } = this;
-    //  orbitLights
 
     if (helixCheck) {
       TweenMax.to(helixGroup.position, 3, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
@@ -664,7 +659,6 @@ class Visualizer {
       const helixIdx = this.display.indexOf("helix");
       this.display.splice(helixIdx, 1);
       this.scene.remove(helixGroup);
-      // this.scene.remove(orbitLights);
     }
   }
 

@@ -306,7 +306,6 @@ var Visualizer = function () {
 
       upload.onchange = function () {
         if (upload.files.length > 0) {
-          console.log(upload.files);
           _this2.readAudioFile(upload.files[0]);
         }
       };
@@ -318,7 +317,6 @@ var Visualizer = function () {
 
       var fileReader = new FileReader();
       fileReader.onload = function (e) {
-        console.log(e);
         _this3.play(e.target.result);
       };
 
@@ -350,7 +348,6 @@ var Visualizer = function () {
 
         _this4.source = sourceNode;
         _this4.source.start(0);
-        console.log(_this4.audioContext.sampleRate);
       });
     }
 
@@ -880,7 +877,6 @@ var Visualizer = function () {
 
       if (display[display.length - 1] !== "helix") {
         this.removeHelix();
-        // this.removeOrbitLights();
       }
     }
 
@@ -910,7 +906,7 @@ var Visualizer = function () {
     value: function removeHelix() {
       var helixGroup = this.helixGroup,
           helixCheck = this.helixCheck;
-      //  orbitLights
+
 
       if (helixCheck) {
         _gsap2.default.to(helixGroup.position, 3, { ease: Sine.easeInOut, x: 4000, y: 0, z: 0 });
@@ -921,7 +917,6 @@ var Visualizer = function () {
         var helixIdx = this.display.indexOf("helix");
         this.display.splice(helixIdx, 1);
         this.scene.remove(helixGroup);
-        // this.scene.remove(orbitLights);
       }
     }
 
