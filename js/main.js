@@ -42,6 +42,14 @@ $(() => {
   });
 
   // Music playback controls
+  $(".audio-btn").each(function () {
+    $(this).click(function () {
+      $(".audio-btn").each(function () {
+        $(this).removeClass("selected");
+      });
+    });
+  });
+
   $(".fa-play").click(() => {
     if (visualizer.source) {
       visualizer.resume();
@@ -75,6 +83,9 @@ $(() => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
+
+    $(".manual-camera").removeClass("hidden");
+    $(".pause-camera").removeClass("hidden");
   });
 
   // $(".rings").click(() => {
@@ -87,7 +98,30 @@ $(() => {
     }
   });
 
-  $(window).resize(visualizer.onWindowResize);
+  // camera controls for bars visualization
 
+  $(".camera-btn").each(function () {
+    $(this).click(function () {
+      $(".camera-btn").each(function () {
+        $(this).removeClass("hidden");
+      });
+
+      $(this).addClass("hidden");
+    });
+  });
+
+  $(".animate-camera").click(() => {
+    
+  });
+
+  $(".manual-camera").click(() => {
+
+  });
+
+  $(".pause-camera").click(() => {
+
+  });
+
+  $(window).resize(visualizer.onWindowResize);
   visualizer.animate();
 });

@@ -190,31 +190,60 @@ div#question:hover {
 }
 
 
-/* Audio Controls */
+/* Audio & Camera Controls */
 
-div.audio-controls {
+div.controls {
   position: absolute;
   bottom: 0;
   left: 0;
   margin: 15px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
-div.buttons {
+div.audio-buttons {
   display: flex;
   justify-content: flex-start;
-
 }
 
-div.buttons > i {
+div.audio-buttons > i {
   margin: 0 10px;
 }
 
-div.buttons > i:hover {
+div.audio-buttons > i.selected {
+  opacity: 0.65;
+  cursor: default;
+}
+
+div.audio-buttons > i.null {
+  opacity: 0.65;
+  cursor: default;
+}
+
+i:hover {
   opacity: 0.65;
   cursor: pointer;
+}
+
+span.camera-btn {
+  font-size: 14px;
+  color: #333;
+  padding: 5px 8px;
+  width: 40px;
+  background: #ccc;
+  margin: 15px 10px;
+  transition: 0.3s;
+}
+
+span.camera-btn:hover {
+  cursor: pointer;
+  background: #888;
+  transition: 0.3s;
+}
+
+span.camera-btn.hidden {
+  display: none;
 }
 
 /* Contact info footer */

@@ -119,6 +119,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   });
 
   // Music playback controls
+  (0, _jquery2.default)(".audio-btn").each(function () {
+    (0, _jquery2.default)(this).click(function () {
+      (0, _jquery2.default)(".audio-btn").each(function () {
+        (0, _jquery2.default)(this).removeClass("selected");
+      });
+    });
+  });
+
   (0, _jquery2.default)(".fa-play").click(function () {
     if (visualizer.source) {
       visualizer.resume();
@@ -153,6 +161,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
+
+    (0, _jquery2.default)(".manual-camera").removeClass("hidden");
+    (0, _jquery2.default)(".pause-camera").removeClass("hidden");
   });
 
   // $(".rings").click(() => {
@@ -165,8 +176,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     }
   });
 
-  (0, _jquery2.default)(window).resize(visualizer.onWindowResize);
+  // camera controls for bars visualization
 
+  (0, _jquery2.default)(".camera-btn").each(function () {
+    (0, _jquery2.default)(this).click(function () {
+      (0, _jquery2.default)(".camera-btn").each(function () {
+        (0, _jquery2.default)(this).removeClass("hidden");
+      });
+
+      (0, _jquery2.default)(this).addClass("hidden");
+    });
+  });
+
+  (0, _jquery2.default)(".animate-camera").click(function () {});
+
+  (0, _jquery2.default)(".manual-camera").click(function () {});
+
+  (0, _jquery2.default)(".pause-camera").click(function () {});
+
+  (0, _jquery2.default)(window).resize(visualizer.onWindowResize);
   visualizer.animate();
 });
 
@@ -199,6 +227,10 @@ var _audioResampler = __webpack_require__(7);
 
 var _audioResampler2 = _interopRequireDefault(_audioResampler);
 
+var _jquery = __webpack_require__(6);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -216,7 +248,7 @@ var Visualizer = function () {
     this.playbackText;
     this.container = document.getElementById("container");
 
-    // three.js setup
+    // three.js variables
     this.scene;
     this.renderer;
     this.camera;
@@ -240,7 +272,6 @@ var Visualizer = function () {
     this.hueChangeSpeed = 0.0001;
     this.helixCheck = true;
 
-    // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
   }
@@ -320,17 +351,21 @@ var Visualizer = function () {
           _this4.source.stop(0);
         }
 
+        (0, _jquery2.default)(".audio-btn").each(function () {
+          (0, _jquery2.default)(this).removeClass("selected");
+        });
+
+        (0, _jquery2.default)(".fa-play").addClass("selected");
+
         _this4.source = sourceNode;
         _this4.source.start(0);
       });
     }
-
-    // playback controls
-
   }, {
     key: 'resume',
     value: function resume() {
       if (this.audioContext && this.audioContext.state === "suspended") {
+        (0, _jquery2.default)(".fa-play").addClass("selected");
         this.audioContext.resume();
         this.playbackText = "Playing";
       }
@@ -339,6 +374,7 @@ var Visualizer = function () {
     key: 'pause',
     value: function pause() {
       if (this.audioContext && this.audioContext.state === "running") {
+        (0, _jquery2.default)(".fa-pause").addClass("selected");
         this.audioContext.suspend();
         this.playbackText = "Paused";
       }
@@ -356,9 +392,6 @@ var Visualizer = function () {
         this.resume();
       }
     }
-
-    // setup camera, scene, renderer
-
   }, {
     key: 'setupRendering',
     value: function setupRendering() {
@@ -411,14 +444,11 @@ var Visualizer = function () {
       var pMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
         size: 5,
-        // adding glowing particle image texture to each particle
-        // additive blending needs transparent to be true
         map: texture,
         blending: THREE.AdditiveBlending,
         transparent: true
       });
 
-      // create individual particles
       for (var i = 0; i < this.particleCount; i++) {
         var pX = Math.random() * 400 - 200;
         var pY = Math.random() * 150 + 150;
@@ -447,7 +477,6 @@ var Visualizer = function () {
         this.display.push("lights");
       }
 
-      // reset particles (positions and alphas)
       particleSystem.material.opacity = 1;
       for (var i = 0; i < particleCount; i++) {
         var particle = particles.vertices[i];
@@ -500,7 +529,6 @@ var Visualizer = function () {
       for (var i = 0; i < particleCount; i++) {
         var particle = particles.vertices[i];
         if (display[display.length - 1] !== "lights") {
-          // speeds up and fades out lights when visualization changes
           particle.velocity.y -= Math.random() * 0.1;
           particleSystem.material.opacity -= 0.000001;
         } else if (display.includes("lights") && particle.y < -100) {
@@ -512,11 +540,9 @@ var Visualizer = function () {
         particle.add(particle.velocity);
       }
 
-      // flags to the particle system that we've changed the vertices
       particleSystem.geometry.verticesNeedUpdate = true;
       renderer.render(this.scene, this.camera);
 
-      // sets particle to hidden after they pass below a threshold
       if (particles.vertices.every(function (particle) {
         return particle.y < -150;
       })) {
@@ -566,7 +592,6 @@ var Visualizer = function () {
       plane.receiveShadow = true;
       barGroup.add(plane);
 
-      // setup bars
       var cubeGeometry = new THREE.BoxGeometry(2, 1, 1);
       var cubeMaterial = new THREE.MeshPhongMaterial({
         color: 0x00D4FF,
@@ -581,7 +606,6 @@ var Visualizer = function () {
         bar.material.opacity = 1;
         bar.material.transparent = true;
 
-        // Trig functions take radians
         bar.position.x = 40 * Math.sin(i * 2 * Math.PI / this.numBars);
         bar.position.y = 0;
         bar.position.z = 40 * Math.cos(i * 2 * Math.PI / this.numBars);
@@ -606,12 +630,10 @@ var Visualizer = function () {
       _gsap2.default.lagSmoothing(33, 33);
 
       if (this.source) {
-        // retrieve data from the frequency data from analyzer
         var bufferLength = analyzer.frequencyBinCount;
         var dataArray = new Uint8Array(bufferLength);
         analyzer.getByteFrequencyData(dataArray);
 
-        // change bar height
         var freqInterval = Math.round(dataArray.length * 3 / 4 / (numBars + 3));
         for (var i = 0; i < numBars; i++) {
           var value = dataArray[i * freqInterval];

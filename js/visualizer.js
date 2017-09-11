@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import TweenMax from 'gsap';
 import * as Util from './util';
 import resampler from 'audio-resampler';
+import $ from 'jquery';
 
 class Visualizer {
   constructor() {
@@ -12,7 +13,7 @@ class Visualizer {
     this.playbackText;
     this.container = document.getElementById("container");
 
-    // three.js setup
+    // three.js variables
     this.scene;
     this.renderer;
     this.camera;
@@ -36,7 +37,6 @@ class Visualizer {
     this.hueChangeSpeed = 0.0001;
     this.helixCheck = true;
 
-    // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
   }
@@ -106,14 +106,20 @@ class Visualizer {
         this.source.stop(0);
       }
 
+      $(".audio-btn").each(function () {
+        $(this).removeClass("selected");
+      });
+
+      $(".fa-play").addClass("selected");
+
       this.source = sourceNode;
       this.source.start(0);
     });
   }
 
-  // playback controls
   resume() {
     if (this.audioContext && this.audioContext.state === "suspended") {
+      $(".fa-play").addClass("selected");
       this.audioContext.resume();
       this.playbackText = "Playing";
     }
@@ -121,6 +127,7 @@ class Visualizer {
 
   pause() {
     if (this.audioContext && this.audioContext.state === "running") {
+      $(".fa-pause").addClass("selected");
       this.audioContext.suspend();
       this.playbackText = "Paused";
     }
@@ -136,7 +143,6 @@ class Visualizer {
     }
   }
 
-  // setup camera, scene, renderer
   setupRendering() {
     const VIEW_ANGLE = 45;
     const WIDTH = window.innerWidth;
