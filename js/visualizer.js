@@ -23,7 +23,6 @@ class Visualizer {
     this.particleCount = 1800;
     this.pMaterial;
     this.particles;
-    // this.animation;
 
     // bar animation variables
     this.numBars = 57;
@@ -31,7 +30,6 @@ class Visualizer {
     this.barCheck = true;
 
     // helix animation variables
-    // this.helixScale;
     this.spiral;
     this.spiral2;
     this.helixGroup;
@@ -41,9 +39,6 @@ class Visualizer {
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
-    // this.animateLights = this.animateLights.bind(this);
-    // this.animateBars = this.animateBars.bind(this);
-    // this.animateHelix = this.animateHelix.bind(this);
   }
 
   init() {
@@ -99,17 +94,14 @@ class Visualizer {
     this.audioContext.decodeAudioData(audioData).then((buffer) => {
       const sourceNode = this.audioContext.createBufferSource();
 
-      // resample all songs to 44100
+      // resample all songs to 44100 to avoid messing up the visualizer
       resampler(buffer, 44100, (e) => {
         sourceNode.buffer = e.getAudioBuffer();
       });
 
-      // connect source to analyzer and
-      // analyzer to audio context destination
       sourceNode.connect(this.analyzer);
       this.analyzer.connect(this.audioContext.destination);
 
-      // stop previous song if currently playing
       if (this.source) {
         this.source.stop(0);
       }
@@ -194,14 +186,11 @@ class Visualizer {
     const pMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       size: 5,
-      // adding glowing particle image texture to each particle
-      // additive blending needs transparent to be true
       map: texture,
       blending: THREE.AdditiveBlending,
       transparent: true
     });
 
-    // create individual particles
     for (let i = 0; i < this.particleCount; i++) {
       let pX = Math.random() * 400 - 200;
       let pY = Math.random() * 150 + 150;
@@ -225,7 +214,6 @@ class Visualizer {
       this.display.push("lights");
     }
 
-    // reset particles (positions and alphas)
     particleSystem.material.opacity = 1;
     for (let i = 0; i < particleCount; i++) {
       let particle = particles.vertices[i];
@@ -270,7 +258,6 @@ class Visualizer {
     for (let i = 0; i < particleCount; i++) {
       let particle = particles.vertices[i];
       if (display[display.length - 1] !== "lights") {
-        // speeds up and fades out lights when visualization changes
         particle.velocity.y -= Math.random() * 0.1;
         particleSystem.material.opacity -= 0.000001;
       } else if (display.includes("lights") && particle.y < -100) {
@@ -282,11 +269,9 @@ class Visualizer {
       particle.add(particle.velocity);
     }
 
-    // flags to the particle system that we've changed the vertices
     particleSystem.geometry.verticesNeedUpdate = true;
     renderer.render(this.scene, this.camera);
 
-    // sets particle to hidden after they pass below a threshold
     if (particles.vertices.every((particle) => {
       return particle.y < -150;
     })) {
@@ -333,7 +318,6 @@ class Visualizer {
     plane.receiveShadow = true;
     barGroup.add(plane);
 
-    // setup bars
     const cubeGeometry = new THREE.BoxGeometry(2, 1, 1);
     const cubeMaterial = new THREE.MeshPhongMaterial({
       color: 0x00D4FF,
@@ -348,7 +332,6 @@ class Visualizer {
       bar.material.opacity = 1;
       bar.material.transparent = true;
 
-      // Trig functions take radians
       bar.position.x = 40 * Math.sin(i * 2 * Math.PI / this.numBars);
       bar.position.y = 0;
       bar.position.z = 40 * Math.cos(i * 2 * Math.PI / this.numBars);
@@ -365,12 +348,10 @@ class Visualizer {
     TweenMax.lagSmoothing(33, 33);
 
     if (this.source) {
-      // retrieve data from the frequency data from analyzer
       const bufferLength = analyzer.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyzer.getByteFrequencyData(dataArray);
 
-      // change bar height
       const freqInterval = Math.round(dataArray.length * 3 / 4 / (numBars + 3));
       for (let i = 0; i < numBars; i++) {
         let value = dataArray[i * freqInterval];

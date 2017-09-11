@@ -227,7 +227,6 @@ var Visualizer = function () {
     this.particleCount = 1800;
     this.pMaterial;
     this.particles;
-    // this.animation;
 
     // bar animation variables
     this.numBars = 57;
@@ -235,7 +234,6 @@ var Visualizer = function () {
     this.barCheck = true;
 
     // helix animation variables
-    // this.helixScale;
     this.spiral;
     this.spiral2;
     this.helixGroup;
@@ -245,9 +243,6 @@ var Visualizer = function () {
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
-    // this.animateLights = this.animateLights.bind(this);
-    // this.animateBars = this.animateBars.bind(this);
-    // this.animateHelix = this.animateHelix.bind(this);
   }
 
   _createClass(Visualizer, [{
@@ -313,17 +308,14 @@ var Visualizer = function () {
       this.audioContext.decodeAudioData(audioData).then(function (buffer) {
         var sourceNode = _this4.audioContext.createBufferSource();
 
-        // resample all songs to 44100
+        // resample all songs to 44100 to avoid messing up the visualizer
         (0, _audioResampler2.default)(buffer, 44100, function (e) {
           sourceNode.buffer = e.getAudioBuffer();
         });
 
-        // connect source to analyzer and
-        // analyzer to audio context destination
         sourceNode.connect(_this4.analyzer);
         _this4.analyzer.connect(_this4.audioContext.destination);
 
-        // stop previous song if currently playing
         if (_this4.source) {
           _this4.source.stop(0);
         }
