@@ -112,8 +112,9 @@ class Visualizer {
       this.source = sourceNode;
       this.source.start(0);
 
-      this.source.onended = function() {
+      this.source.onended = () => {
         this.source = null;
+        // delete this.source;
         $(".audio-btn").each(function() {
           $(this).addClass("null");
         });
@@ -194,7 +195,10 @@ class Visualizer {
 
   renderBlank() {
     this.display.push("blank");
-    this.cameraTween.kill();
+    if (this.cameraTween) {
+      this.cameraTween.kill();
+    }
+
     this.cameraTween = TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
   }
 
@@ -448,7 +452,6 @@ class Visualizer {
   renderHelix() {
     this.helixCheck = true;
     this.display.push("helix");
-    this.cameraTween.kill();
     const { camera, scene, renderer, display } = this;
 
     const helixGroup = new THREE.Group();

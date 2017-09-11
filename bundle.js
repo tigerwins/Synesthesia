@@ -10626,7 +10626,8 @@ var Visualizer = function () {
         _this4.source.start(0);
 
         _this4.source.onended = function () {
-          this.source = null;
+          _this4.source = null;
+          // delete this.source;
           (0, _jquery2.default)(".audio-btn").each(function () {
             (0, _jquery2.default)(this).addClass("null");
           });
@@ -10713,7 +10714,10 @@ var Visualizer = function () {
     key: 'renderBlank',
     value: function renderBlank() {
       this.display.push("blank");
-      this.cameraTween.kill();
+      if (this.cameraTween) {
+        this.cameraTween.kill();
+      }
+
       this.cameraTween = _gsap2.default.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
     }
   }, {
@@ -10992,7 +10996,6 @@ var Visualizer = function () {
     value: function renderHelix() {
       this.helixCheck = true;
       this.display.push("helix");
-      this.cameraTween.kill();
       var camera = this.camera,
           scene = this.scene,
           renderer = this.renderer,
