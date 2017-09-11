@@ -1,39 +1,65 @@
 # Synesthesia - 3D Audio Visualizer
 
-## JavaScript Project Proposal
+[Synesthesia live][synesthesia]
 
-### MVP Features
+[synesthesia]: http://jonathanzliu.com/Synesthesia
 
-Synesthesia will be able to render 3D visualizations that match and emphasize the music being played. It will have the following features:
 
-* Can playback music (either a sample track or one of the user's choosing)
-* 3D rendering in time with the music
-* Orbital camera controls
+Synesthesia is a browser-based 3D music visualizations that matches and emphasizes the music being played. It was created using the Three.js rendering library and the Web Audio API.
 
-### Technologies, Libraries, APIs
+## Technologies
 
-This project will make use of the **Web Audio API** to create a context with any audio being played. It will be combined with the **Three.js** 3D rendering library to create a couple visualizations that the user can then view from different angles using camera controls.
+* Three.js
+* Web Audio API
+* TweenMax (from GSAP)
+* jQuery
 
-### Wireframes
+## Features and Implementation
 
-Landing Page Modal will have a simple toggle button in the top right of the main page  
-![image of landing page](https://github.com/tigerwins/Synesthesia/blob/master/images/modal.png "landing page modal")
+### Visualizations
 
-Home page will have drop-down menus to choose visualizations and music in the top left, playback controls in the bottom left, and links to personal site, Github, and LinkedIn in the bottom right  
-![image home page](https://github.com/tigerwins/Synesthesia/blob/master/images/home-screen.png "home page")
+#### Lights
 
-### Implementation Timeline
+The introduction with no response to audio, but is a pleasant home screen that is somewhere between fireflies dancing and freshly-fallen snow.
 
-**Day 1** - Create first visualization (bars)
-* Develop geometries and materials
-* Match mesh with music
-* Smooth over transitions
+#### Bars
 
-**Day 2** - Create second visualization (helix or fountain)
-* Develop geometries and materials
-* Match mesh with music
-* Smooth over transitions
+A typical bar visualization that matches the height of each bar to a different frequency in the audio data after performing a Fast Fourier Transform. Makes use of camera tweening to create the visual effect of the camera smoothly flying around the scene.
 
-**Day 3** - Implement camera controls
-* Implement THREE.OrbitControls to allow user interaction
-* Wrap up animation loose ends
+![tweening](https://github.com/tigerwins/Synesthesia/blob/master/images/tween.png "Tweening")
+
+#### Helix
+
+A colorful visualization that makes use of the TubeGeometry and PointsMaterial to create a helix which rotates at a speed determined by the lower frequencies; the lowest portion of the audio buffer was used as a primitive form of beat detection.
+
+![rmsVolumeLow](https://github.com/tigerwins/Synesthesia/blob/master/images/rms-volume.png "RMS Volume")
+
+The colors cycled at a speed determined by the higher portion of the audio buffer. Volumes were calculated by taking the Root Mean Square of the array of frequency amplitudes within each range.
+
+### Music Uploads
+
+While Synesthesia comes with a few sample tracks, the key draw is that you can now see the effects your own music can have on the visualizations. Resampling of any input audio guarantees that the audio data input that the animation methods use will be consistent across audio files.
+
+## Development
+
+To run this demo locally, you must clone the repository, navigate to the Synesthesia directory, and run the following commands:
+
+```
+npm install
+npm run webpack
+npm run http-server
+```
+
+After http-server is up and running, you should be able to access the demo at localhost:8080 in your web browser.
+
+## Future Features
+
+I hope to continue working on this project, especially as a way to learn more about Three.js. There are several additions that I would like to add:
+
+### More visualizations
+
+Another visualization that I would like to create is something similar to an armillary sphere, with three concentric bands that rotate around a central light source.
+
+### Smoothed out camera controls
+
+Currently, Three's default OrbitControls are very bumpy and make for a very unpleasant user experience when added. I plan to delve deeper into the documentation to find a way to smooth out arrow-key camera controls so that users may orbit the bars visualization manually.

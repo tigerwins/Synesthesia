@@ -161,9 +161,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
-
-    (0, _jquery2.default)(".manual-camera").removeClass("hidden");
-    (0, _jquery2.default)(".pause-camera").removeClass("hidden");
   });
 
   // $(".rings").click(() => {
@@ -175,24 +172,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
       visualizer.renderHelix();
     }
   });
-
-  // camera controls for bars visualization
-
-  (0, _jquery2.default)(".camera-btn").each(function () {
-    (0, _jquery2.default)(this).click(function () {
-      (0, _jquery2.default)(".camera-btn").each(function () {
-        (0, _jquery2.default)(this).removeClass("hidden");
-      });
-
-      (0, _jquery2.default)(this).addClass("hidden");
-    });
-  });
-
-  (0, _jquery2.default)(".animate-camera").click(function () {});
-
-  (0, _jquery2.default)(".manual-camera").click(function () {});
-
-  (0, _jquery2.default)(".pause-camera").click(function () {});
 
   (0, _jquery2.default)(window).resize(visualizer.onWindowResize);
   visualizer.animate();

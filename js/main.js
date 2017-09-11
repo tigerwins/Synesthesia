@@ -83,9 +83,6 @@ $(() => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
-
-    $(".manual-camera").removeClass("hidden");
-    $(".pause-camera").removeClass("hidden");
   });
 
   // $(".rings").click(() => {
@@ -96,30 +93,6 @@ $(() => {
     if (display[display.length - 1] !== "helix") {
       visualizer.renderHelix();
     }
-  });
-
-  // camera controls for bars visualization
-
-  $(".camera-btn").each(function () {
-    $(this).click(function () {
-      $(".camera-btn").each(function () {
-        $(this).removeClass("hidden");
-      });
-
-      $(this).addClass("hidden");
-    });
-  });
-
-  $(".animate-camera").click(() => {
-    
-  });
-
-  $(".manual-camera").click(() => {
-
-  });
-
-  $(".pause-camera").click(() => {
-
   });
 
   $(window).resize(visualizer.onWindowResize);

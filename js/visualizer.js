@@ -529,17 +529,17 @@ class Visualizer {
       analyzer.getByteFrequencyData(dataArray);
       const highBeatRange =
         dataArray.slice(0, Math.round(dataArray.length * 1/3));
-      const lowBeatRange =
-        dataArray.slice(Math.round(dataArray.length * 2/3));
       const highDataSum = highBeatRange.reduce((sum, value) => {
         return sum + Math.pow(value, 2);
       }, 0);
+      const rmsVolumeHigh = 1 + Math.ceil(Math.sqrt(highDataSum/dataArray.length));
+
+      const lowBeatRange =
+        dataArray.slice(Math.round(dataArray.length * 2/3));
       const lowDataSum = lowBeatRange.reduce((sum, value) => {
         return sum + Math.pow(value, 2);
       }, 0);
-
       const rmsVolumeLow = 1 + Math.ceil(Math.sqrt(lowDataSum/dataArray.length));
-      const rmsVolumeHigh = 1 + Math.ceil(Math.sqrt(highDataSum/dataArray.length));
 
       this.spiral1.rotation.x += (0.1 * rmsVolumeLow / 11);
       this.spiral2.rotation.x += (0.1 * rmsVolumeLow / 11);

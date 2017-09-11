@@ -18,7 +18,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack": "webpack --watch",
+    "webpack": "webpack",
     "http-server": "http-server -p 8080 -c-1"
   },
   "repository": {

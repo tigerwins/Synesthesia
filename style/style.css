@@ -226,7 +226,7 @@ i:hover {
   cursor: pointer;
 }
 
-span.camera-btn {
+/*span.camera-btn {
   font-size: 14px;
   color: #333;
   padding: 5px 8px;
@@ -244,7 +244,7 @@ span.camera-btn:hover {
 
 span.camera-btn.hidden {
   display: none;
-}
+}*/
 
 /* Contact info footer */
 
