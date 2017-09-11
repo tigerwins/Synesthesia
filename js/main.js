@@ -76,7 +76,9 @@ $(() => {
   });
 
   $(".blank").click(() => {
-    visualizer.renderBlank();
+    if (display[display.length - 1] !== "blank") {
+      visualizer.renderBlank();
+    }
   });
 
   $(".bars").click(() => {
@@ -86,7 +88,7 @@ $(() => {
   });
 
   // $(".rings").click(() => {
-  // visualizer.display.push("fountain");
+  // visualizer.display.push("rings");
   // });
 
   $(".helix").click(() => {

@@ -30,7 +30,7 @@ class Visualizer {
     // bar animation variables
     this.numBars = 57;
     this.toggleCameraMove = true;
-    this.barCheck = true;
+    this.barCameraCheck = true;
 
     // helix animation variables
     this.spiral;
@@ -105,7 +105,8 @@ class Visualizer {
       this.analyzer.connect(this.audioContext.destination);
 
       if (this.source) {
-        this.source.stop(0);
+        // this.source.stop(0);
+        this.source.disconnect();
       }
 
       this.source = sourceNode;
@@ -153,6 +154,7 @@ class Visualizer {
         this.source = null;
       }, 2000);
       this.resume();
+      this.playbackText = "";
     }
   }
 
@@ -192,6 +194,12 @@ class Visualizer {
 
   renderBlank() {
     this.display.push("blank");
+    this.cameraTween.kill();
+    this.cameraTween = TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
+  }
+
+  animateBlank() {
+    this.renderer.render(this.scene, this.camera);
   }
 
   renderLights() {
@@ -265,6 +273,9 @@ class Visualizer {
     if (display.includes("helix")) {
       this.animateHelix();
     }
+    if (display.includes("blank")) {
+      this.animateBlank();
+    }
 
     this.animation = requestAnimationFrame(this.animate);
   }
@@ -301,7 +312,7 @@ class Visualizer {
   }
 
   renderBars() {
-    this.barCheck = true;
+    this.barCameraCheck = true;
     this.display.push("bars");
     const { scene, camera, renderer} = this;
     renderer.shadowMap.enabled = true;
@@ -403,12 +414,12 @@ class Visualizer {
 
     if (toggleCameraMove) {
       if (camera.position.equals(pos0)) {
-        if (this.source && this.barCheck) {
+        if (this.source && this.barCameraCheck) {
           setTimeout(() => {
             this.cameraTween = TweenMax.to(camera.position, 5,
               { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
           }, 7000);
-          this.barCheck = false;
+          this.barCameraCheck = false;
         }
       } else if (camera.position.equals(pos1)) {
         this.cameraTween = TweenMax.to(camera.position, 10,
@@ -437,6 +448,7 @@ class Visualizer {
   renderHelix() {
     this.helixCheck = true;
     this.display.push("helix");
+    this.cameraTween.kill();
     const { camera, scene, renderer, display } = this;
 
     const helixGroup = new THREE.Group();

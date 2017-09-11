@@ -10441,7 +10441,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   });
 
   (0, _jquery2.default)(".blank").click(function () {
-    visualizer.renderBlank();
+    if (display[display.length - 1] !== "blank") {
+      visualizer.renderBlank();
+    }
   });
 
   (0, _jquery2.default)(".bars").click(function () {
@@ -10451,7 +10453,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   });
 
   // $(".rings").click(() => {
-  // visualizer.display.push("fountain");
+  // visualizer.display.push("rings");
   // });
 
   (0, _jquery2.default)(".helix").click(function () {
@@ -10531,7 +10533,7 @@ var Visualizer = function () {
     // bar animation variables
     this.numBars = 57;
     this.toggleCameraMove = true;
-    this.barCheck = true;
+    this.barCameraCheck = true;
 
     // helix animation variables
     this.spiral;
@@ -10616,7 +10618,8 @@ var Visualizer = function () {
         _this4.analyzer.connect(_this4.audioContext.destination);
 
         if (_this4.source) {
-          _this4.source.stop(0);
+          // this.source.stop(0);
+          _this4.source.disconnect();
         }
 
         _this4.source = sourceNode;
@@ -10669,6 +10672,7 @@ var Visualizer = function () {
           _this5.source = null;
         }, 2000);
         this.resume();
+        this.playbackText = "";
       }
     }
   }, {
@@ -10709,6 +10713,13 @@ var Visualizer = function () {
     key: 'renderBlank',
     value: function renderBlank() {
       this.display.push("blank");
+      this.cameraTween.kill();
+      this.cameraTween = _gsap2.default.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
+    }
+  }, {
+    key: 'animateBlank',
+    value: function animateBlank() {
+      this.renderer.render(this.scene, this.camera);
     }
   }, {
     key: 'renderLights',
@@ -10790,6 +10801,9 @@ var Visualizer = function () {
       if (display.includes("helix")) {
         this.animateHelix();
       }
+      if (display.includes("blank")) {
+        this.animateBlank();
+      }
 
       this.animation = requestAnimationFrame(this.animate);
     }
@@ -10833,7 +10847,7 @@ var Visualizer = function () {
   }, {
     key: 'renderBars',
     value: function renderBars() {
-      this.barCheck = true;
+      this.barCameraCheck = true;
       this.display.push("bars");
       var scene = this.scene,
           camera = this.camera,
@@ -10950,11 +10964,11 @@ var Visualizer = function () {
 
       if (toggleCameraMove) {
         if (camera.position.equals(pos0)) {
-          if (this.source && this.barCheck) {
+          if (this.source && this.barCameraCheck) {
             setTimeout(function () {
               _this6.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
             }, 7000);
-            this.barCheck = false;
+            this.barCameraCheck = false;
           }
         } else if (camera.position.equals(pos1)) {
           this.cameraTween = _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 150, y: 50, z: -100 });
@@ -10978,6 +10992,7 @@ var Visualizer = function () {
     value: function renderHelix() {
       this.helixCheck = true;
       this.display.push("helix");
+      this.cameraTween.kill();
       var camera = this.camera,
           scene = this.scene,
           renderer = this.renderer,
