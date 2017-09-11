@@ -211,7 +211,6 @@ var Visualizer = function () {
 
     // Web Audio API variables
     this.audioContext;
-    this.offlineContext;
     this.source;
     this.currentFile;
     this.playbackText;
@@ -228,7 +227,7 @@ var Visualizer = function () {
     this.particleCount = 1800;
     this.pMaterial;
     this.particles;
-    this.animation;
+    // this.animation;
 
     // bar animation variables
     this.numBars = 57;
@@ -236,25 +235,19 @@ var Visualizer = function () {
     this.barCheck = true;
 
     // helix animation variables
-    this.helixScale;
+    // this.helixScale;
     this.spiral;
-    // this.hue1 = 0;
     this.spiral2;
     this.helixGroup;
-    // this.hue2 = 180;
     this.hueChangeSpeed = 0.0001;
-    // this.orbitLights;
     this.helixCheck = true;
-    // this.orbitCheck = true;
-
-    // this.orbitCount = 0;
 
     // method binding
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
-    this.animateLights = this.animateLights.bind(this);
-    this.animateBars = this.animateBars.bind(this);
-    this.animateHelix = this.animateHelix.bind(this);
+    // this.animateLights = this.animateLights.bind(this);
+    // this.animateBars = this.animateBars.bind(this);
+    // this.animateHelix = this.animateHelix.bind(this);
   }
 
   _createClass(Visualizer, [{
@@ -276,26 +269,15 @@ var Visualizer = function () {
       var _this = this;
 
       var request = new XMLHttpRequest();
-      // current readyState "UNSENT"
       this.currentFile = url.slice(6);
-
-      // opens an HTTP request, readyState "OPENED"
       request.open("GET", url);
-
-      // audio data will be returned as an ArrayBuffer object
       request.responseType = "arraybuffer";
 
-      // buffer with audio data plays when request successfully finishes
       request.onload = function () {
-        // readyState "DONE"
         _this.play(request.response);
       };
 
-      // returns as soon as request is sent (asynchronous)
-      // readyState "HEADERS_RECEIVED"
       request.send();
-
-      // request proceeds to download, readyState "LOADING"
     }
   }, {
     key: 'handleUpload',
@@ -793,38 +775,6 @@ var Visualizer = function () {
 
       _gsap2.default.to(camera.position, 2, { x: 0, y: 0, z: 500 });
     }
-
-    // renderOrbitLights() {
-    //   this.orbitCheck = true;
-    //   const numLights = 10;
-    //   const lightGroup = new THREE.Group();
-    //   lightGroup.name = "orbitLights";
-    //   const bulbGeometry = new THREE.SphereGeometry(2, 16, 8);
-    //   const bulbMaterial = new THREE.MeshStandardMaterial({
-    //   	emissive: 0xffffee,
-    // 		emissiveIntensity: 1,
-    // 		color: 0x000000
-    // 	});
-    //
-    //   let bulbLight = new THREE.PointLight(0xffee88, 1, 100, 2);
-    //   bulbLight.add(new THREE.Mesh(bulbGeometry, bulbMaterial));
-    //
-    //   for (let i = 0; i < numLights; i++) {
-    //     let bulb = bulbLight.clone();
-    //     let x = 300 * Math.random() - 150;
-    //     let y = 2 * (150 - Math.abs(x)) * Math.random() - (150 - Math.abs(x));
-    //     let z = Math.sign(Math.random() - 0.5) *
-    //       Math.sqrt(Math.pow(200, 2) - Math.pow(x, 2) - Math.pow(y, 2));
-    //     bulb.position.set(x, y, z);
-    //     bulb.name = "light" + i;
-    //     bulb.castShadow = true;
-    //     lightGroup.add(bulb);
-    //   }
-    //
-    //   this.orbitLights = lightGroup;
-    //   this.scene.add(this.orbitLights);
-    // }
-
   }, {
     key: 'animateHelix',
     value: function animateHelix() {
@@ -879,28 +829,6 @@ var Visualizer = function () {
         this.removeHelix();
       }
     }
-
-    // animateOrbitLights(dataArray) {
-    //   const { scene, orbitLights } = this;
-    //   const numLights = orbitLights.children.length;
-    //
-    //   if (dataArray) {
-    //     const beatRange =
-    //       dataArray.slice(0, Math.round(Number(dataArray.length) * 1/3));
-    //     const dataSum = beatRange.reduce((sum, value) => {
-    //       return sum + Math.pow(value, 2);
-    //     });
-    //
-    //     const rmsVolume =
-    //       Math.floor(Math.sqrt(dataSum/dataArray.length))/10;
-    //     const bulb = scene.getObjectByName("light" + this.orbitCount);
-    //     bulb.scale.x = rmsVolume;
-    //     bulb.scale.y = rmsVolume;
-    //     bulb.scale.z = rmsVolume;
-    //     this.orbitCount = (1 + this.orbitCount) % numLights;
-    //   }
-    // }
-
   }, {
     key: 'removeHelix',
     value: function removeHelix() {
@@ -919,27 +847,6 @@ var Visualizer = function () {
         this.scene.remove(helixGroup);
       }
     }
-
-    // removeOrbitLights() {
-    //   const { orbitLights, orbitCheck } = this;
-    //   const self = this;
-    //
-    //   function setRemoveTimeout() {
-    //     setTimeout(() => {
-    //       self.scene.remove(orbitLights);
-    //     }, 3000);
-    //   }
-    //
-    //   if (orbitCheck && orbitLights) {
-    //     orbitLights.children.forEach(light => {
-    //       TweenMax.to(light.position, 3, { ease: Power3.easeIn, x: 0, y: 0, z: 0 });
-    //       TweenMax.to(light.scale, 3, { ease: Power3.easeIn, x: 1, y: 1, z: 1 });
-    //     });
-    //
-    //     this.orbitCheck = false;
-    //   }
-    // }
-
   }]);
 
   return Visualizer;
