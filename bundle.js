@@ -10395,11 +10395,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   var visualizer = new _visualizer2.default();
   visualizer.init();
 
-  (0, _jquery2.default)(".chaoz").click(function () {
-    visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
-  });
   (0, _jquery2.default)(".endeavours").click(function () {
     visualizer.loadAndPlaySample("music/endeavours.mp3");
+  });
+  (0, _jquery2.default)(".chaoz").click(function () {
+    visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
   });
   (0, _jquery2.default)(".instrumental").click(function () {
     visualizer.loadAndPlaySample("music/instrumental-4.mp3");
@@ -10510,7 +10510,9 @@ var Visualizer = function () {
     _classCallCheck(this, Visualizer);
 
     // Web Audio API variables
-    this.audioContext;
+    this.inputAudioCtx;
+    this.offlineCtx;
+    this.outputAudioCtx;
     this.source;
     this.currentFile;
     this.loading = false;
@@ -10554,9 +10556,9 @@ var Visualizer = function () {
       window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
       window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
 
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      this.analyzer = this.audioContext.createAnalyser();
-      this.analyzer.fftSize = 2048;
+      this.inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // this.analyzer = this.inputAudioCtx.createAnalyser();
+      // this.analyzer.fftSize = 2048;
 
       this.setupRendering();
       this.handleUpload();
@@ -10586,6 +10588,8 @@ var Visualizer = function () {
       var upload = document.getElementById("upload");
 
       upload.onchange = function () {
+        _this2.trackStatus.textContent = "Loading audio...";
+        _this2.trackTitle.textContent = "";
         if (upload.files.length > 0) {
           _this2.readAudioFile(upload.files[0]);
         }
@@ -10598,7 +10602,6 @@ var Visualizer = function () {
 
       var fileReader = new FileReader();
       fileReader.onload = function (e) {
-        debugger;
         _this3.currentFile = audioFile.name;
         _this3.play(e.target.result);
       };
@@ -10610,37 +10613,49 @@ var Visualizer = function () {
     value: function play(audioData) {
       var _this4 = this;
 
-      var self = this;
-      this.audioContext.decodeAudioData(audioData).then(function (buffer) {
-        var sourceNode = _this4.audioContext.createBufferSource();
+      this.inputAudioCtx.decodeAudioData(audioData).then(function (buffer) {
+        window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        _this4.offlineCtx = new OfflineAudioContext(2, 44100 * buffer.duration, 44100);
 
-        // resample all songs to 44100 to avoid messing up the visualizer
-        (0, _audioResampler2.default)(buffer, 44100, function (e) {
-          sourceNode.buffer = e.getAudioBuffer();
+        var sourceNode = _this4.offlineCtx.createBufferSource();
+        sourceNode.buffer = buffer;
+        sourceNode.connect(_this4.offlineCtx.destination);
+        sourceNode.start();
+
+        var self = _this4;
+        // resample to 44100 Hz using an offline audio context
+        // otherwise the visualizations will be thrown off
+        _this4.offlineCtx.startRendering().then(function (renderedBuffer) {
+          _this4.outputAudioCtx = _this4.outputAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+          _this4.analyzer = _this4.analyzer || _this4.outputAudioCtx.createAnalyser();
+
+          var track = _this4.outputAudioCtx.createBufferSource();
+          track.buffer = renderedBuffer;
+          track.connect(_this4.analyzer);
+          _this4.analyzer.connect(_this4.outputAudioCtx.destination);
+
+          if (self.source) {
+            self.source.disconnect();
+          }
+
+          self.trackTitle.textContent = self.currentFile;
+          self.trackStatus.textContent = "Playing";
+          self.source = track;
+          self.source.start();
+
+          self.source.onended = function () {
+            self.source.disconnect();
+            self.source = null;
+            self.currentFile = null;
+            self.trackStatus.textContent = "";
+            self.trackTitle.textContent = "";
+
+            (0, _jquery2.default)(".audio-btn").each(function () {
+              (0, _jquery2.default)(this).addClass("null");
+            });
+          };
         });
-
-        sourceNode.connect(_this4.analyzer);
-        _this4.analyzer.connect(_this4.audioContext.destination);
-
-        if (_this4.source) {
-          _this4.source.disconnect();
-        }
-
-        _this4.trackTitle.textContent = _this4.currentFile;
-        _this4.trackStatus.textContent = "Playing";
-        _this4.source = sourceNode;
-        _this4.source.start(0);
-
-        _this4.source.onended = function () {
-          // this.source = null;
-          _this4.source.disconnect();
-          _this4.trackStatus.textContent = "";
-          _this4.trackTitle.textContent = "";
-
-          (0, _jquery2.default)(".audio-btn").each(function () {
-            (0, _jquery2.default)(this).addClass("null");
-          });
-        };
 
         (0, _jquery2.default)(".audio-btn").each(function () {
           (0, _jquery2.default)(this).removeClass("null");
@@ -10652,38 +10667,48 @@ var Visualizer = function () {
   }, {
     key: 'resume',
     value: function resume() {
-      if (this.audioContext && this.audioContext.state === "suspended") {
+      if (this.outputAudioCtx && this.outputAudioCtx.state === "suspended") {
         (0, _jquery2.default)(".fa-play").addClass("selected");
-        this.audioContext.resume();
+        this.outputAudioCtx.resume();
         this.trackStatus.textContent = "Playing";
-        this.cameraTween.resume();
+        if (this.cameraTween) {
+          this.cameraTween.resume();
+        }
         this.animation = requestAnimationFrame(this.animate);
       }
     }
   }, {
     key: 'pause',
     value: function pause() {
-      if (this.audioContext && this.audioContext.state === "running") {
+      if (this.outputAudioCtx && this.outputAudioCtx.state === "running") {
         (0, _jquery2.default)(".fa-pause").addClass("selected");
-        this.audioContext.suspend();
+        this.outputAudioCtx.suspend();
         this.trackStatus.textContent = "Paused";
-        this.cameraTween.pause();
+        if (this.cameraTween) {
+          this.cameraTween.pause();
+        }
         cancelAnimationFrame(this.animation);
       }
     }
   }, {
     key: 'stop',
     value: function stop() {
-      var _this5 = this;
-
-      if (this.audioContext) {
+      if (this.outputAudioCtx) {
         this.source.stop(0);
 
-        setTimeout(function () {
-          _this5.source = null;
-        }, 2000);
+        // setTimeout(() => {
+        //   this.source.disconnect();
+        //   this.source = null;
+        // }, 500);
+
+        // setTimeout(() => {
+        //   this.source = null;
+        // }, 2000);
+
         this.resume();
-        this.trackStatus.textContent = "";
+        // this.trackStatus.textContent = "";
+        // this.trackTitle.textContent = "";
+        // this.currentFile = null;
       }
     }
   }, {
@@ -10963,7 +10988,7 @@ var Visualizer = function () {
   }, {
     key: 'animateBarsCamera',
     value: function animateBarsCamera() {
-      var _this6 = this;
+      var _this5 = this;
 
       var camera = this.camera,
           toggleCameraMove = this.toggleCameraMove;
@@ -10980,7 +11005,7 @@ var Visualizer = function () {
         if (camera.position.equals(pos0)) {
           if (this.source && this.barCameraCheck) {
             setTimeout(function () {
-              _this6.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+              _this5.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
             }, 7000);
             this.barCameraCheck = false;
           }

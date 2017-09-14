@@ -7,7 +7,9 @@ import $ from 'jquery';
 class Visualizer {
   constructor() {
     // Web Audio API variables
-    this.audioContext;
+    this.inputAudioCtx;
+    this.offlineCtx;
+    this.outputAudioCtx;
     this.source;
     this.currentFile;
     this.loading = false;
@@ -53,9 +55,9 @@ class Visualizer {
       window.cancelAnimationFrame ||
       window.webkitCancelAnimationFrame;
 
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    this.analyzer = this.audioContext.createAnalyser();
-    this.analyzer.fftSize = 2048;
+    this.inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // this.analyzer = this.inputAudioCtx.createAnalyser();
+    // this.analyzer.fftSize = 2048;
 
     this.setupRendering();
     this.handleUpload();
@@ -79,6 +81,8 @@ class Visualizer {
     const upload = document.getElementById("upload");
 
     upload.onchange = () => {
+      this.trackStatus.textContent = "Loading audio...";
+      this.trackTitle.textContent = "";
       if (upload.files.length > 0) {
         this.readAudioFile(upload.files[0]);
       }
@@ -88,7 +92,6 @@ class Visualizer {
   readAudioFile(audioFile) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
-      debugger
       this.currentFile = audioFile.name;
       this.play(e.target.result);
     };
@@ -97,37 +100,50 @@ class Visualizer {
   }
 
   play(audioData) {
-    const self = this;
-    this.audioContext.decodeAudioData(audioData).then((buffer) => {
-      const sourceNode = this.audioContext.createBufferSource();
+    this.inputAudioCtx.decodeAudioData(audioData).then((buffer) => {
+      window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      this.offlineCtx = new OfflineAudioContext(2, 44100 * buffer.duration, 44100);
 
-      // resample all songs to 44100 to avoid messing up the visualizer
-      resampler(buffer, 44100, (e) => {
-        sourceNode.buffer = e.getAudioBuffer();
+      const sourceNode = this.offlineCtx.createBufferSource();
+      sourceNode.buffer = buffer;
+      sourceNode.connect(this.offlineCtx.destination);
+      sourceNode.start();
+
+      const self = this;
+      // resample to 44100 Hz using an offline audio context
+      // otherwise the visualizations will be thrown off
+      this.offlineCtx.startRendering().then((renderedBuffer) => {
+        this.outputAudioCtx = this.outputAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+        this.analyzer =
+          this.analyzer || this.outputAudioCtx.createAnalyser();
+
+        const track = this.outputAudioCtx.createBufferSource();
+        track.buffer = renderedBuffer;
+        track.connect(this.analyzer);
+        this.analyzer.connect(this.outputAudioCtx.destination);
+
+        if (self.source) {
+          self.source.disconnect();
+        }
+
+        self.trackTitle.textContent = self.currentFile;
+        self.trackStatus.textContent = "Playing";
+        self.source = track;
+        self.source.start();
+
+        self.source.onended = () => {
+          self.source.disconnect();
+          self.source = null;
+          self.currentFile = null;
+          self.trackStatus.textContent = "";
+          self.trackTitle.textContent = "";
+
+          $(".audio-btn").each(function() {
+            $(this).addClass("null");
+          });
+        };
       });
-
-      sourceNode.connect(this.analyzer);
-      this.analyzer.connect(this.audioContext.destination);
-
-      if (this.source) {
-        this.source.disconnect();
-      }
-
-      this.trackTitle.textContent = this.currentFile;
-      this.trackStatus.textContent = "Playing";
-      this.source = sourceNode;
-      this.source.start(0);
-
-      this.source.onended = () => {
-        // this.source = null;
-        this.source.disconnect();
-        this.trackStatus.textContent = "";
-        this.trackTitle.textContent = "";
-
-        $(".audio-btn").each(function() {
-          $(this).addClass("null");
-        });
-      };
 
       $(".audio-btn").each(function () {
         $(this).removeClass("null");
@@ -138,34 +154,46 @@ class Visualizer {
   }
 
   resume() {
-    if (this.audioContext && this.audioContext.state === "suspended") {
+    if (this.outputAudioCtx && this.outputAudioCtx.state === "suspended") {
       $(".fa-play").addClass("selected");
-      this.audioContext.resume();
+      this.outputAudioCtx.resume();
       this.trackStatus.textContent = "Playing";
-      this.cameraTween.resume();
+      if (this.cameraTween) {
+        this.cameraTween.resume();
+      }
       this.animation = requestAnimationFrame(this.animate);
     }
   }
 
   pause() {
-    if (this.audioContext && this.audioContext.state === "running") {
+    if (this.outputAudioCtx && this.outputAudioCtx.state === "running") {
       $(".fa-pause").addClass("selected");
-      this.audioContext.suspend();
+      this.outputAudioCtx.suspend();
       this.trackStatus.textContent = "Paused";
-      this.cameraTween.pause();
+      if (this.cameraTween) {
+        this.cameraTween.pause();
+      }
       cancelAnimationFrame(this.animation);
     }
   }
 
   stop() {
-    if (this.audioContext) {
+    if (this.outputAudioCtx) {
       this.source.stop(0);
 
-      setTimeout(() => {
-        this.source = null;
-      }, 2000);
+      // setTimeout(() => {
+      //   this.source.disconnect();
+      //   this.source = null;
+      // }, 500);
+
+      // setTimeout(() => {
+      //   this.source = null;
+      // }, 2000);
+
       this.resume();
-      this.trackStatus.textContent = "";
+      // this.trackStatus.textContent = "";
+      // this.trackTitle.textContent = "";
+      // this.currentFile = null;
     }
   }
 

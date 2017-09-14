@@ -31,11 +31,11 @@ $(() => {
   const visualizer = new Visualizer();
   visualizer.init();
 
-  $(".chaoz").click(() => {
-    visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
-  });
   $(".endeavours").click(() => {
     visualizer.loadAndPlaySample("music/endeavours.mp3");
+  });
+  $(".chaoz").click(() => {
+    visualizer.loadAndPlaySample("music/chaoz-fantasy.mp3");
   });
   $(".instrumental").click(() => {
     visualizer.loadAndPlaySample("music/instrumental-4.mp3");
