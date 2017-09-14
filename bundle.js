@@ -10513,7 +10513,8 @@ var Visualizer = function () {
     this.audioContext;
     this.source;
     this.currentFile;
-    this.playbackText;
+    this.playbackText = document.getElementById("");
+    this.trackTitle = "";
     this.container = document.getElementById("container");
 
     // three.js variables
