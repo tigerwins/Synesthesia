@@ -10,8 +10,9 @@ class Visualizer {
     this.audioContext;
     this.source;
     this.currentFile;
-    this.playbackText = document.getElementById("");
-    this.trackTitle = "";
+    this.loading = false;
+    this.trackStatus = document.querySelector(".track-status");
+    this.trackTitle = document.querySelector(".track-title");
     this.container = document.getElementById("container");
 
     // three.js variables
@@ -70,6 +71,7 @@ class Visualizer {
       this.play(request.response);
     };
 
+    this.trackStatus.textContent = "Loading audio...";
     request.send();
   }
 
@@ -86,6 +88,8 @@ class Visualizer {
   readAudioFile(audioFile) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
+      debugger
+      this.currentFile = audioFile.name;
       this.play(e.target.result);
     };
 
@@ -106,16 +110,20 @@ class Visualizer {
       this.analyzer.connect(this.audioContext.destination);
 
       if (this.source) {
-        // this.source.stop(0);
         this.source.disconnect();
       }
 
+      this.trackTitle.textContent = this.currentFile;
+      this.trackStatus.textContent = "Playing";
       this.source = sourceNode;
       this.source.start(0);
 
       this.source.onended = () => {
-        this.source = null;
-        // delete this.source;
+        // this.source = null;
+        this.source.disconnect();
+        this.trackStatus.textContent = "";
+        this.trackTitle.textContent = "";
+
         $(".audio-btn").each(function() {
           $(this).addClass("null");
         });
@@ -133,7 +141,7 @@ class Visualizer {
     if (this.audioContext && this.audioContext.state === "suspended") {
       $(".fa-play").addClass("selected");
       this.audioContext.resume();
-      this.playbackText = "Playing";
+      this.trackStatus.textContent = "Playing";
       this.cameraTween.resume();
       this.animation = requestAnimationFrame(this.animate);
     }
@@ -143,7 +151,7 @@ class Visualizer {
     if (this.audioContext && this.audioContext.state === "running") {
       $(".fa-pause").addClass("selected");
       this.audioContext.suspend();
-      this.playbackText = "Paused";
+      this.trackStatus.textContent = "Paused";
       this.cameraTween.pause();
       cancelAnimationFrame(this.animation);
     }
@@ -152,11 +160,12 @@ class Visualizer {
   stop() {
     if (this.audioContext) {
       this.source.stop(0);
+
       setTimeout(() => {
         this.source = null;
       }, 2000);
       this.resume();
-      this.playbackText = "";
+      this.trackStatus.textContent = "";
     }
   }
 

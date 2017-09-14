@@ -202,6 +202,21 @@ div.controls {
   align-items: center;
 }
 
+div.audio-box {
+  display: flex;
+  flex-direction: column;
+}
+
+div.track-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+div.track-info span {
+  margin-bottom: 5px;
+}
+
 div.audio-buttons {
   display: flex;
   justify-content: flex-start;
