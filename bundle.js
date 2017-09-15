@@ -10515,7 +10515,6 @@ var Visualizer = function () {
     this.outputAudioCtx;
     this.source;
     this.currentFile;
-    this.loading = false;
     this.trackStatus = document.querySelector(".track-status");
     this.trackTitle = document.querySelector(".track-title");
     this.container = document.getElementById("container");
@@ -10548,6 +10547,7 @@ var Visualizer = function () {
 
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
+    this.handleEnd = this.handleEnd.bind(this);
   }
 
   _createClass(Visualizer, [{
@@ -10555,10 +10555,7 @@ var Visualizer = function () {
     value: function init() {
       window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
       window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
-
       this.inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      // this.analyzer = this.inputAudioCtx.createAnalyser();
-      // this.analyzer.fftSize = 2048;
 
       this.setupRendering();
       this.handleUpload();
@@ -10635,23 +10632,17 @@ var Visualizer = function () {
           track.connect(_this4.analyzer);
           _this4.analyzer.connect(_this4.outputAudioCtx.destination);
 
-          if (self.source) {
-            self.source.disconnect();
-          }
+          if (self.source) self.source.disconnect();
 
           self.trackTitle.textContent = self.currentFile;
           self.trackStatus.textContent = "Playing";
           self.source = track;
           self.source.start();
 
+          if (_this4.cameraTween) _this4.cameraTween.resume();
+
           self.source.onended = function () {
-            if (self.source) {
-              self.source.disconnect();
-            }
-            self.source = null;
-            self.currentFile = null;
-            self.trackStatus.textContent = "";
-            self.trackTitle.textContent = "";
+            self.handleEnd();
 
             (0, _jquery2.default)(".audio-btn").each(function () {
               (0, _jquery2.default)(this).addClass("null");
@@ -10695,32 +10686,33 @@ var Visualizer = function () {
   }, {
     key: 'stop',
     value: function stop() {
-      var _this5 = this;
-
       if (this.outputAudioCtx) {
         if (this.outputAudioCtx.state === "suspended") {
-          // this.outputAudioCtx.resume();
           this.resume();
         }
+
+        this.handleEnd();
+      }
+    }
+  }, {
+    key: 'handleEnd',
+    value: function handleEnd() {
+      var _this5 = this;
+
+      var manual = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      if (this.source) {
         this.source.disconnect();
         this.source.stop(0);
-        //
-        // const self = this;
-        // setTimeout(() => {
-        //   debugger
-        //   self.source.stop(0);
-        //   // this.source.disconnect();
-        //   // this.source = null;
-        // }, 500);
-
-        // this.resume();
-        this.trackStatus.textContent = "";
-        this.trackTitle.textContent = "";
-        this.currentFile = null;
-        setTimeout(function () {
-          _this5.source = null;
-        }, 1000);
       }
+
+      if (this.cameraTween) this.cameraTween.pause();
+      this.trackStatus.textContent = "";
+      this.trackTitle.textContent = "";
+      this.currentFile = null;
+      setTimeout(function () {
+        _this5.source = null;
+      }, 1000);
     }
   }, {
     key: 'setupRendering',

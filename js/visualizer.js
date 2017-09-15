@@ -12,7 +12,6 @@ class Visualizer {
     this.outputAudioCtx;
     this.source;
     this.currentFile;
-    this.loading = false;
     this.trackStatus = document.querySelector(".track-status");
     this.trackTitle = document.querySelector(".track-title");
     this.container = document.getElementById("container");
@@ -45,6 +44,7 @@ class Visualizer {
 
     this.onWindowResize = this.onWindowResize.bind(this);
     this.animate = this.animate.bind(this);
+    this.handleEnd = this.handleEnd.bind(this);
   }
 
   init() {
@@ -54,10 +54,7 @@ class Visualizer {
     window.cancelAnimationFrame =
       window.cancelAnimationFrame ||
       window.webkitCancelAnimationFrame;
-
     this.inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    // this.analyzer = this.inputAudioCtx.createAnalyser();
-    // this.analyzer.fftSize = 2048;
 
     this.setupRendering();
     this.handleUpload();
@@ -123,23 +120,17 @@ class Visualizer {
         track.connect(this.analyzer);
         this.analyzer.connect(this.outputAudioCtx.destination);
 
-        if (self.source) {
-          self.source.disconnect();
-        }
+        if (self.source) self.source.disconnect();
 
         self.trackTitle.textContent = self.currentFile;
         self.trackStatus.textContent = "Playing";
         self.source = track;
         self.source.start();
 
+        if (this.cameraTween) this.cameraTween.resume();
+
         self.source.onended = () => {
-          if (self.source) {
-            self.source.disconnect();
-          }
-          self.source = null;
-          self.currentFile = null;
-          self.trackStatus.textContent = "";
-          self.trackTitle.textContent = "";
+          self.handleEnd();
 
           $(".audio-btn").each(function() {
             $(this).addClass("null");
@@ -182,28 +173,26 @@ class Visualizer {
   stop() {
     if (this.outputAudioCtx) {
       if (this.outputAudioCtx.state === "suspended") {
-        // this.outputAudioCtx.resume();
         this.resume();
       }
+
+      this.handleEnd();
+    }
+  }
+
+  handleEnd(manual = false) {
+    if (this.source) {
       this.source.disconnect();
       this.source.stop(0);
-      //
-      // const self = this;
-      // setTimeout(() => {
-      //   debugger
-      //   self.source.stop(0);
-      //   // this.source.disconnect();
-      //   // this.source = null;
-      // }, 500);
-
-      // this.resume();
-      this.trackStatus.textContent = "";
-      this.trackTitle.textContent = "";
-      this.currentFile = null;
-      setTimeout(() => {
-        this.source = null;
-      }, 1000);
     }
+
+    if (this.cameraTween) this.cameraTween.pause();
+    this.trackStatus.textContent = "";
+    this.trackTitle.textContent = "";
+    this.currentFile = null;
+    setTimeout(() => {
+      this.source = null;
+    }, 1000);
   }
 
   setupRendering() {
