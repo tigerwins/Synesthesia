@@ -35,24 +35,31 @@ $(() => {
   });
 
   // Music playback controls
-  $(".audio-btn").each(function () {
-    $(this).click(function () {
-      $(".audio-btn").each(function () {
-        $(this).removeClass("selected");
-      });
-    });
+  $(".audio-btn").click(function () {
+    if (visualizer.source) {
+      $(".audio-btn").removeClass("null");
+    }
   });
 
   $(".fa-play").click(() => {
-    if (visualizer.source) visualizer.resume();
+    if (visualizer.source) {
+      visualizer.resume();
+      $(this).addClass("null");
+    }
   });
 
   $(".fa-pause").click(() => {
-    if (visualizer.source) visualizer.pause();
+    if (visualizer.source) {
+      visualizer.pause();
+      $(this).addClass("null");
+    }
   });
 
   $(".fa-stop").click(() => {
-    if (visualizer.source) visualizer.stop();
+    if (visualizer.source) {
+      visualizer.stop();
+      $(this).addClass("null");
+    }
   });
 
   // Camera controls

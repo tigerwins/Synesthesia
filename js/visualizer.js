@@ -129,26 +129,20 @@ class Visualizer {
 
         if (this.cameraTween) this.cameraTween.resume();
 
-        self.source.onended = () => {
-          self.handleEnd();
-
-          $(".audio-btn").each(function() {
-            $(this).addClass("null");
-          });
-        };
+        self.source.onended = self.handleEnd;
       });
 
       $(".audio-btn").each(function () {
         $(this).removeClass("null");
       });
 
-      $(".fa-play").addClass("selected");
+      $(".fa-play").addClass("null");
     });
   }
 
   resume() {
     if (this.outputAudioCtx && this.outputAudioCtx.state === "suspended") {
-      $(".fa-play").addClass("selected");
+      $(".fa-play").addClass("null");
       this.outputAudioCtx.resume();
       this.trackStatus.textContent = "Playing";
       if (this.cameraTween) this.cameraTween.resume();
@@ -158,7 +152,7 @@ class Visualizer {
 
   pause() {
     if (this.outputAudioCtx && this.outputAudioCtx.state === "running") {
-      $(".fa-pause").addClass("selected");
+      $(".fa-pause").addClass("null");
       this.outputAudioCtx.suspend();
       this.trackStatus.textContent = "Paused";
       if (this.cameraTween) this.cameraTween.pause();
@@ -183,6 +177,8 @@ class Visualizer {
     this.trackStatus.textContent = "";
     this.trackTitle.textContent = "";
     this.currentFile = null;
+    $(".audio-btn").addClass("null");
+
     setTimeout(() => {
       this.source = null;
     }, 1000);

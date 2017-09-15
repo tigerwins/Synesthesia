@@ -10405,24 +10405,31 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   });
 
   // Music playback controls
-  (0, _jquery2.default)(".audio-btn").each(function () {
-    (0, _jquery2.default)(this).click(function () {
-      (0, _jquery2.default)(".audio-btn").each(function () {
-        (0, _jquery2.default)(this).removeClass("selected");
-      });
-    });
+  (0, _jquery2.default)(".audio-btn").click(function () {
+    if (visualizer.source) {
+      (0, _jquery2.default)(".audio-btn").removeClass("null");
+    }
   });
 
   (0, _jquery2.default)(".fa-play").click(function () {
-    if (visualizer.source) visualizer.resume();
+    if (visualizer.source) {
+      visualizer.resume();
+      (0, _jquery2.default)(undefined).addClass("null");
+    }
   });
 
   (0, _jquery2.default)(".fa-pause").click(function () {
-    if (visualizer.source) visualizer.pause();
+    if (visualizer.source) {
+      visualizer.pause();
+      (0, _jquery2.default)(undefined).addClass("null");
+    }
   });
 
   (0, _jquery2.default)(".fa-stop").click(function () {
-    if (visualizer.source) visualizer.stop();
+    if (visualizer.source) {
+      visualizer.stop();
+      (0, _jquery2.default)(undefined).addClass("null");
+    }
   });
 
   // Camera controls
@@ -10650,27 +10657,21 @@ var Visualizer = function () {
 
           if (_this4.cameraTween) _this4.cameraTween.resume();
 
-          self.source.onended = function () {
-            self.handleEnd();
-
-            (0, _jquery2.default)(".audio-btn").each(function () {
-              (0, _jquery2.default)(this).addClass("null");
-            });
-          };
+          self.source.onended = self.handleEnd;
         });
 
         (0, _jquery2.default)(".audio-btn").each(function () {
           (0, _jquery2.default)(this).removeClass("null");
         });
 
-        (0, _jquery2.default)(".fa-play").addClass("selected");
+        (0, _jquery2.default)(".fa-play").addClass("null");
       });
     }
   }, {
     key: 'resume',
     value: function resume() {
       if (this.outputAudioCtx && this.outputAudioCtx.state === "suspended") {
-        (0, _jquery2.default)(".fa-play").addClass("selected");
+        (0, _jquery2.default)(".fa-play").addClass("null");
         this.outputAudioCtx.resume();
         this.trackStatus.textContent = "Playing";
         if (this.cameraTween) this.cameraTween.resume();
@@ -10681,7 +10682,7 @@ var Visualizer = function () {
     key: 'pause',
     value: function pause() {
       if (this.outputAudioCtx && this.outputAudioCtx.state === "running") {
-        (0, _jquery2.default)(".fa-pause").addClass("selected");
+        (0, _jquery2.default)(".fa-pause").addClass("null");
         this.outputAudioCtx.suspend();
         this.trackStatus.textContent = "Paused";
         if (this.cameraTween) this.cameraTween.pause();
@@ -10712,6 +10713,8 @@ var Visualizer = function () {
       this.trackStatus.textContent = "";
       this.trackTitle.textContent = "";
       this.currentFile = null;
+      (0, _jquery2.default)(".audio-btn").addClass("null");
+
       setTimeout(function () {
         _this5.source = null;
       }, 1000);
