@@ -10368,13 +10368,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   visualizer.init();
 
   (0, _jquery2.default)(".endeavours").click(function () {
-    visualizer.playSample("assets/music/endeavours.mp3");
+    visualizer.playSample("./assets/music/endeavours.mp3");
   });
   (0, _jquery2.default)(".chaoz").click(function () {
-    visualizer.playSample("assets/music/chaoz-fantasy.mp3");
+    visualizer.playSample("./assets/music/chaoz-fantasy.mp3");
   });
   (0, _jquery2.default)(".instrumental").click(function () {
-    visualizer.playSample("assets/music/instrumental-4.mp3");
+    visualizer.playSample("./assets/music/instrumental-4.mp3");
   });
 
   // Music playback controls
@@ -10648,7 +10648,7 @@ var Visualizer = function () {
       this.particleCount = 1800;
       var particles = new THREE.Geometry();
       var loader = new THREE.TextureLoader();
-      var texture = loader.load("assets/textures/particle.png");
+      var texture = loader.load("./assets/textures/particle.png");
 
       var pMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
