@@ -10405,9 +10405,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   });
 
   // Music playback controls
-  (0, _jquery2.default)(".audio-btn").click(function () {
+  (0, _jquery2.default)(".audio-btn").click(function (e) {
     if (visualizer.source) {
       (0, _jquery2.default)(".audio-btn").removeClass("null");
+      (0, _jquery2.default)(e.currentTarget).addClass("null");
     }
   });
 
@@ -11138,7 +11139,6 @@ var Visualizer = function () {
       this.helixGroup = helixGroup;
 
       scene.add(this.helixGroup);
-      // TweenMax.killAll();
       this.cameraTween.kill();
       this.cameraTween = _gsap2.default.to(camera.position, 2, { x: 0, y: 0, z: 500 });
     }

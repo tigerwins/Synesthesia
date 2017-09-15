@@ -573,7 +573,6 @@ class Visualizer {
     this.helixGroup = helixGroup;
 
     scene.add(this.helixGroup);
-    // TweenMax.killAll();
     this.cameraTween.kill();
     this.cameraTween = TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
   }

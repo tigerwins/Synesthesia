@@ -35,9 +35,10 @@ $(() => {
   });
 
   // Music playback controls
-  $(".audio-btn").click(function () {
+  $(".audio-btn").click((e) => {
     if (visualizer.source) {
       $(".audio-btn").removeClass("null");
+      $(e.currentTarget).addClass("null");
     }
   });
 
@@ -95,7 +96,6 @@ $(() => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
-
   });
 
   // $(".rings").click(() => {
