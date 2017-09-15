@@ -63366,7 +63366,7 @@ var AudioProcessor = function () {
       var _this = this;
 
       var request = new XMLHttpRequest();
-      this.currentFile = url.slice(13);
+      this.currentFile = url.slice(15);
       request.open("GET", url);
       request.responseType = "arraybuffer";
 
