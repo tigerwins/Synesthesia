@@ -6,9 +6,9 @@
 
 Synesthesia will be able to render 3D visualizations that match and emphasize the music being played. It will have the following features:
 
-* Can playback music (either a sample track or one of the user's choosing)
+* Music playback (either a sample track or one of the user's choosing)
 * 3D rendering in time with the music
-* Orbital camera controls
+* Camera movement
 
 ### Technologies, Libraries, APIs
 
@@ -29,11 +29,11 @@ Home page will have drop-down menus to choose visualizations and music in the to
 * Match mesh with music
 * Smooth over transitions
 
-**Day 2** - Create second visualization (helix or fountain)
+**Day 2** - Create second visualization (helix)
 * Develop geometries and materials
 * Match mesh with music
 * Smooth over transitions
 
-**Day 3** - Implement camera controls
-* Implement THREE.OrbitControls to allow user interaction
+**Day 3** - Implement camera movement
+* Implement TweenMax to handle camera transitions
 * Wrap up animation loose ends

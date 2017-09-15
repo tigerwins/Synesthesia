@@ -213,6 +213,7 @@ div.track-info {
 
 div.track-info span {
   margin-bottom: 5px;
+  font-weight: bold;
 }
 
 div.audio-buttons {
