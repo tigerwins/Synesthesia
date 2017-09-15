@@ -133,7 +133,9 @@ class Visualizer {
         self.source.start();
 
         self.source.onended = () => {
-          self.source.disconnect();
+          if (self.source) {
+            self.source.disconnect();
+          }
           self.source = null;
           self.currentFile = null;
           self.trackStatus.textContent = "";
@@ -179,21 +181,28 @@ class Visualizer {
 
   stop() {
     if (this.outputAudioCtx) {
+      if (this.outputAudioCtx.state === "suspended") {
+        // this.outputAudioCtx.resume();
+        this.resume();
+      }
+      this.source.disconnect();
       this.source.stop(0);
-
+      //
+      // const self = this;
       // setTimeout(() => {
-      //   this.source.disconnect();
-      //   this.source = null;
+      //   debugger
+      //   self.source.stop(0);
+      //   // this.source.disconnect();
+      //   // this.source = null;
       // }, 500);
 
-      // setTimeout(() => {
-      //   this.source = null;
-      // }, 2000);
-
-      this.resume();
-      // this.trackStatus.textContent = "";
-      // this.trackTitle.textContent = "";
-      // this.currentFile = null;
+      // this.resume();
+      this.trackStatus.textContent = "";
+      this.trackTitle.textContent = "";
+      this.currentFile = null;
+      setTimeout(() => {
+        this.source = null;
+      }, 1000);
     }
   }
 

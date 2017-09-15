@@ -10645,7 +10645,9 @@ var Visualizer = function () {
           self.source.start();
 
           self.source.onended = function () {
-            self.source.disconnect();
+            if (self.source) {
+              self.source.disconnect();
+            }
             self.source = null;
             self.currentFile = null;
             self.trackStatus.textContent = "";
@@ -10693,22 +10695,31 @@ var Visualizer = function () {
   }, {
     key: 'stop',
     value: function stop() {
-      if (this.outputAudioCtx) {
-        this.source.stop(0);
+      var _this5 = this;
 
+      if (this.outputAudioCtx) {
+        if (this.outputAudioCtx.state === "suspended") {
+          // this.outputAudioCtx.resume();
+          this.resume();
+        }
+        this.source.disconnect();
+        this.source.stop(0);
+        //
+        // const self = this;
         // setTimeout(() => {
-        //   this.source.disconnect();
-        //   this.source = null;
+        //   debugger
+        //   self.source.stop(0);
+        //   // this.source.disconnect();
+        //   // this.source = null;
         // }, 500);
 
-        // setTimeout(() => {
-        //   this.source = null;
-        // }, 2000);
-
-        this.resume();
-        // this.trackStatus.textContent = "";
-        // this.trackTitle.textContent = "";
-        // this.currentFile = null;
+        // this.resume();
+        this.trackStatus.textContent = "";
+        this.trackTitle.textContent = "";
+        this.currentFile = null;
+        setTimeout(function () {
+          _this5.source = null;
+        }, 1000);
       }
     }
   }, {
@@ -10988,7 +10999,7 @@ var Visualizer = function () {
   }, {
     key: 'animateBarsCamera',
     value: function animateBarsCamera() {
-      var _this5 = this;
+      var _this6 = this;
 
       var camera = this.camera,
           toggleCameraMove = this.toggleCameraMove;
@@ -11005,7 +11016,7 @@ var Visualizer = function () {
         if (camera.position.equals(pos0)) {
           if (this.source && this.barCameraCheck) {
             setTimeout(function () {
-              _this5.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+              _this6.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
             }, 7000);
             this.barCameraCheck = false;
           }
