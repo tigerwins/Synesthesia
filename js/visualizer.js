@@ -32,7 +32,7 @@ class Visualizer {
 
     // bar animation variables
     this.numBars = 57;
-    this.toggleCameraMove = true;
+    this.cameraMove = true;
     this.barCameraCheck = true;
 
     // helix animation variables
@@ -151,9 +151,7 @@ class Visualizer {
       $(".fa-play").addClass("selected");
       this.outputAudioCtx.resume();
       this.trackStatus.textContent = "Playing";
-      if (this.cameraTween) {
-        this.cameraTween.resume();
-      }
+      if (this.cameraTween) this.cameraTween.resume();
       this.animation = requestAnimationFrame(this.animate);
     }
   }
@@ -163,19 +161,14 @@ class Visualizer {
       $(".fa-pause").addClass("selected");
       this.outputAudioCtx.suspend();
       this.trackStatus.textContent = "Paused";
-      if (this.cameraTween) {
-        this.cameraTween.pause();
-      }
+      if (this.cameraTween) this.cameraTween.pause();
       cancelAnimationFrame(this.animation);
     }
   }
 
   stop() {
     if (this.outputAudioCtx) {
-      if (this.outputAudioCtx.state === "suspended") {
-        this.resume();
-      }
-
+      if (this.outputAudioCtx.state === "suspended") this.resume();
       this.handleEnd();
     }
   }
@@ -231,9 +224,7 @@ class Visualizer {
 
   renderBlank() {
     this.display.push("blank");
-    if (this.cameraTween) {
-      this.cameraTween.kill();
-    }
+    if (this.cameraTween) this.cameraTween.kill();
 
     this.cameraTween = TweenMax.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
   }
@@ -352,10 +343,12 @@ class Visualizer {
   }
 
   renderBars() {
-    this.barCameraCheck = true;
     this.display.push("bars");
     const { scene, camera, renderer} = this;
     renderer.shadowMap.enabled = true;
+    this.barCameraCheck = true;
+    this.cameraMove = true;
+    $(".still-camera").removeClass("hidden");
 
     const pos0 = new THREE.Vector3(0, 0, 150);
     if (!camera.position.equals(pos0)) {
@@ -436,14 +429,14 @@ class Visualizer {
     if (display[display.length - 1] !== "bars") {
       const barIdx = display.indexOf("bars");
       this.display.splice(barIdx, 1);
-
       const barGroup = scene.getObjectByName("bars");
       scene.remove(barGroup);
+      $(".camera-btn").addClass("hidden");
     }
   }
 
   animateBarsCamera() {
-    const { camera, toggleCameraMove } = this;
+    const { camera, cameraMove } = this;
     const pos0 = new THREE.Vector3(0, 0, 150);
     const pos1 = new THREE.Vector3(0, 250, 200);
     const pos2 = new THREE.Vector3(150, 50, -100);
@@ -452,7 +445,7 @@ class Visualizer {
     const pos5 = new THREE.Vector3(150, 250, -75);
     const pos6 = new THREE.Vector3(-150, 50, -100);
 
-    if (toggleCameraMove) {
+    if (cameraMove) {
       if (camera.position.equals(pos0)) {
         if (this.source && this.barCameraCheck) {
           setTimeout(() => {
@@ -480,8 +473,14 @@ class Visualizer {
         this.cameraTween = TweenMax.to(camera.position, 10,
           { ease: Sine.easeInOut, x: 0, y: 250, z: 200});
       }
-    } else {
-      this.cameraTween = TweenMax.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
+    }
+  }
+
+  toggleCameraTween() {
+    this.cameraMove = !this.cameraMove;
+    if (!this.cameraMove) {
+      if (this.cameraTween) TweenMax.killAll();
+      this.cameraTween = TweenMax.to(this.camera.position, 1, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
     }
   }
 

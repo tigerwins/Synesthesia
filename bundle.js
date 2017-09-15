@@ -10368,16 +10368,15 @@ var _jquery2 = _interopRequireDefault(_jquery);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (0, _jquery2.default)(function () {
-  // modal controls
+  // Modal controls
   (0, _jquery2.default)("#enter").click(function () {
-    (0, _jquery2.default)(".landing-page").addClass("hidden");
-    setTimeout(function () {}, 1000);
+    return (0, _jquery2.default)(".landing-page").addClass("hidden");
   });
   (0, _jquery2.default)("#question").click(function () {
-    (0, _jquery2.default)(".landing-page").removeClass("hidden");
+    return (0, _jquery2.default)(".landing-page").removeClass("hidden");
   });
 
-  // dropdown menus
+  // Dropdown menus
 
   (0, _jquery2.default)(".nav-option").mouseover(function () {
     (0, _jquery2.default)(this).children("ul").removeClass("closed").addClass("open");
@@ -10415,24 +10414,34 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   });
 
   (0, _jquery2.default)(".fa-play").click(function () {
-    if (visualizer.source) {
-      visualizer.resume();
-    }
+    if (visualizer.source) visualizer.resume();
   });
 
   (0, _jquery2.default)(".fa-pause").click(function () {
-    if (visualizer.source) {
-      visualizer.pause();
-    }
+    if (visualizer.source) visualizer.pause();
   });
 
   (0, _jquery2.default)(".fa-stop").click(function () {
-    if (visualizer.source) {
-      visualizer.stop();
-    }
+    if (visualizer.source) visualizer.stop();
   });
 
-  // visualizer selection
+  // Camera controls
+
+  (0, _jquery2.default)(".camera-btn").click(function () {
+    visualizer.toggleCameraTween();
+  });
+
+  (0, _jquery2.default)(".animate-camera").click(function () {
+    (0, _jquery2.default)(this).addClass("hidden");
+    (0, _jquery2.default)(".still-camera").removeClass("hidden");
+  });
+
+  (0, _jquery2.default)(".still-camera").click(function () {
+    (0, _jquery2.default)(this).addClass("hidden");
+    (0, _jquery2.default)(".animate-camera").removeClass("hidden");
+  });
+
+  // Visualizer selection
 
   var display = visualizer.display;
 
@@ -10535,7 +10544,7 @@ var Visualizer = function () {
 
     // bar animation variables
     this.numBars = 57;
-    this.toggleCameraMove = true;
+    this.cameraMove = true;
     this.barCameraCheck = true;
 
     // helix animation variables
@@ -10664,9 +10673,7 @@ var Visualizer = function () {
         (0, _jquery2.default)(".fa-play").addClass("selected");
         this.outputAudioCtx.resume();
         this.trackStatus.textContent = "Playing";
-        if (this.cameraTween) {
-          this.cameraTween.resume();
-        }
+        if (this.cameraTween) this.cameraTween.resume();
         this.animation = requestAnimationFrame(this.animate);
       }
     }
@@ -10677,9 +10684,7 @@ var Visualizer = function () {
         (0, _jquery2.default)(".fa-pause").addClass("selected");
         this.outputAudioCtx.suspend();
         this.trackStatus.textContent = "Paused";
-        if (this.cameraTween) {
-          this.cameraTween.pause();
-        }
+        if (this.cameraTween) this.cameraTween.pause();
         cancelAnimationFrame(this.animation);
       }
     }
@@ -10687,10 +10692,7 @@ var Visualizer = function () {
     key: 'stop',
     value: function stop() {
       if (this.outputAudioCtx) {
-        if (this.outputAudioCtx.state === "suspended") {
-          this.resume();
-        }
-
+        if (this.outputAudioCtx.state === "suspended") this.resume();
         this.handleEnd();
       }
     }
@@ -10752,9 +10754,7 @@ var Visualizer = function () {
     key: 'renderBlank',
     value: function renderBlank() {
       this.display.push("blank");
-      if (this.cameraTween) {
-        this.cameraTween.kill();
-      }
+      if (this.cameraTween) this.cameraTween.kill();
 
       this.cameraTween = _gsap2.default.to(this.camera.position, 2, { x: 0, y: 0, z: 150 });
     }
@@ -10889,13 +10889,15 @@ var Visualizer = function () {
   }, {
     key: 'renderBars',
     value: function renderBars() {
-      this.barCameraCheck = true;
       this.display.push("bars");
       var scene = this.scene,
           camera = this.camera,
           renderer = this.renderer;
 
       renderer.shadowMap.enabled = true;
+      this.barCameraCheck = true;
+      this.cameraMove = true;
+      (0, _jquery2.default)(".still-camera").removeClass("hidden");
 
       var pos0 = new THREE.Vector3(0, 0, 150);
       if (!camera.position.equals(pos0)) {
@@ -10983,9 +10985,9 @@ var Visualizer = function () {
       if (display[display.length - 1] !== "bars") {
         var barIdx = display.indexOf("bars");
         this.display.splice(barIdx, 1);
-
         var barGroup = scene.getObjectByName("bars");
         scene.remove(barGroup);
+        (0, _jquery2.default)(".camera-btn").addClass("hidden");
       }
     }
   }, {
@@ -10994,7 +10996,7 @@ var Visualizer = function () {
       var _this6 = this;
 
       var camera = this.camera,
-          toggleCameraMove = this.toggleCameraMove;
+          cameraMove = this.cameraMove;
 
       var pos0 = new THREE.Vector3(0, 0, 150);
       var pos1 = new THREE.Vector3(0, 250, 200);
@@ -11004,7 +11006,7 @@ var Visualizer = function () {
       var pos5 = new THREE.Vector3(150, 250, -75);
       var pos6 = new THREE.Vector3(-150, 50, -100);
 
-      if (toggleCameraMove) {
+      if (cameraMove) {
         if (camera.position.equals(pos0)) {
           if (this.source && this.barCameraCheck) {
             setTimeout(function () {
@@ -11025,8 +11027,15 @@ var Visualizer = function () {
         } else if (camera.position.equals(pos6)) {
           this.cameraTween = _gsap2.default.to(camera.position, 10, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
         }
-      } else {
-        this.cameraTween = _gsap2.default.to(camera.position, 4, { east: Sine.easeInOut, x: 0, y: 250, z: 200 });
+      }
+    }
+  }, {
+    key: 'toggleCameraTween',
+    value: function toggleCameraTween() {
+      this.cameraMove = !this.cameraMove;
+      if (!this.cameraMove) {
+        if (this.cameraTween) _gsap2.default.killAll();
+        this.cameraTween = _gsap2.default.to(this.camera.position, 1, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
       }
     }
   }, {

@@ -2,18 +2,11 @@ import Visualizer from './visualizer';
 import $ from 'jquery';
 
 $(() => {
-  // modal controls
-  $("#enter").click(() => {
-    $(".landing-page").addClass("hidden");
-    setTimeout(() => {
+  // Modal controls
+  $("#enter").click(() => $(".landing-page").addClass("hidden"));
+  $("#question").click(() => $(".landing-page").removeClass("hidden"));
 
-    }, 1000);
-  });
-  $("#question").click(() => {
-    $(".landing-page").removeClass("hidden");
-  });
-
-  // dropdown menus
+  // Dropdown menus
 
   $(".nav-option").mouseover(function() {
     $(this).children("ul").removeClass("closed").addClass("open");
@@ -51,24 +44,34 @@ $(() => {
   });
 
   $(".fa-play").click(() => {
-    if (visualizer.source) {
-      visualizer.resume();
-    }
+    if (visualizer.source) visualizer.resume();
   });
 
   $(".fa-pause").click(() => {
-    if (visualizer.source) {
-      visualizer.pause();
-    }
+    if (visualizer.source) visualizer.pause();
   });
 
   $(".fa-stop").click(() => {
-    if (visualizer.source) {
-      visualizer.stop();
-    }
+    if (visualizer.source) visualizer.stop();
   });
 
-  // visualizer selection
+  // Camera controls
+
+  $(".camera-btn").click(() => {
+    visualizer.toggleCameraTween();
+  });
+
+  $(".animate-camera").click(function() {
+    $(this).addClass("hidden");
+    $(".still-camera").removeClass("hidden");
+  });
+
+  $(".still-camera").click(function() {
+    $(this).addClass("hidden");
+    $(".animate-camera").removeClass("hidden");
+  });
+
+  // Visualizer selection
 
   const { display } = visualizer;
   $(".reset").click(() => {
@@ -85,6 +88,7 @@ $(() => {
     if (display[display.length - 1] !== "bars") {
       visualizer.renderBars();
     }
+
   });
 
   // $(".rings").click(() => {
