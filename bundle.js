@@ -10368,39 +10368,39 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   visualizer.init();
 
   (0, _jquery2.default)(".endeavours").click(function () {
-    visualizer.loadAndPlaySample("../../assets/music/endeavours.mp3");
+    visualizer.playSample("../../assets/music/endeavours.mp3");
   });
   (0, _jquery2.default)(".chaoz").click(function () {
-    visualizer.loadAndPlaySample("../../assets/music/chaoz-fantasy.mp3");
+    visualizer.playSample("../../assets/music/chaoz-fantasy.mp3");
   });
   (0, _jquery2.default)(".instrumental").click(function () {
-    visualizer.loadAndPlaySample("../../assets/music/instrumental-4.mp3");
+    visualizer.playSample("../../assets/music/instrumental-4.mp3");
   });
 
   // Music playback controls
   (0, _jquery2.default)(".audio-btn").click(function (e) {
-    if (visualizer.source) {
+    if (visualizer.audioProcessor.source) {
       (0, _jquery2.default)(".audio-btn").removeClass("null");
       (0, _jquery2.default)(e.currentTarget).addClass("null");
     }
   });
 
   (0, _jquery2.default)(".fa-play").click(function () {
-    if (visualizer.source) {
+    if (visualizer.audioProcessor.source) {
       visualizer.resume();
       (0, _jquery2.default)(undefined).addClass("null");
     }
   });
 
   (0, _jquery2.default)(".fa-pause").click(function () {
-    if (visualizer.source) {
+    if (visualizer.audioProcessor.source) {
       visualizer.pause();
       (0, _jquery2.default)(undefined).addClass("null");
     }
   });
 
   (0, _jquery2.default)(".fa-stop").click(function () {
-    if (visualizer.source) {
+    if (visualizer.audioProcessor.source) {
       visualizer.stop();
       (0, _jquery2.default)(undefined).addClass("null");
     }
@@ -10481,6 +10481,10 @@ var _jquery = __webpack_require__(0);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
+var _audio_processor = __webpack_require__(6);
+
+var _audio_processor2 = _interopRequireDefault(_audio_processor);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -10491,15 +10495,7 @@ var Visualizer = function () {
   function Visualizer() {
     _classCallCheck(this, Visualizer);
 
-    // Web Audio API variables
-    this.inputAudioCtx;
-    this.offlineCtx;
-    this.outputAudioCtx;
-    this.source;
-    this.currentFile;
-    this.trackStatus = document.querySelector(".track-status");
-    this.trackTitle = document.querySelector(".track-title");
-    this.container = document.getElementById("container");
+    this.audioProcessor;
 
     // three.js variables
     this.scene;
@@ -10511,17 +10507,18 @@ var Visualizer = function () {
 
     // rendering variables
     this.particleSystem;
-    this.particleCount = 1800;
+    this.particleCount = 1500;
     this.pMaterial;
     this.particles;
 
     // bar animation variables
     this.numBars = 57;
     this.cameraMove = true;
+    this.barCheck = true;
     this.barCameraCheck = true;
 
     // helix animation variables
-    this.spiral;
+    this.spiral1;
     this.spiral2;
     this.helixGroup;
     this.hueChangeSpeed = 0.0001;
@@ -10537,109 +10534,38 @@ var Visualizer = function () {
     value: function init() {
       window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
       window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
-      this.inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+      this.setupAudio();
       this.setupRendering();
       this.handleUpload();
     }
   }, {
-    key: 'loadAndPlaySample',
-    value: function loadAndPlaySample(url) {
-      var _this = this;
-
-      var request = new XMLHttpRequest();
-      this.currentFile = url.slice(19);
-      request.open("GET", url);
-      request.responseType = "arraybuffer";
-
-      request.onload = function () {
-        _this.play(request.response);
-      };
-
-      this.trackStatus.textContent = "Loading audio...";
-      request.send();
+    key: 'setupAudio',
+    value: function setupAudio() {
+      this.audioProcessor = new _audio_processor2.default();
+      this.audioProcessor.init();
+    }
+  }, {
+    key: 'playSample',
+    value: function playSample(url) {
+      this.audioProcessor.loadAndPlaySample(url);
+      if (this.cameraTween) this.cameraTween.resume();
     }
   }, {
     key: 'handleUpload',
     value: function handleUpload() {
-      var _this2 = this;
+      var _this = this;
 
       var upload = document.getElementById("upload");
-
       upload.onchange = function () {
-        _this2.trackStatus.textContent = "Loading audio...";
-        _this2.trackTitle.textContent = "";
-        if (upload.files.length > 0) {
-          _this2.readAudioFile(upload.files[0]);
-        }
+        return _this.audioProcessor.handleUpload(upload);
       };
-    }
-  }, {
-    key: 'readAudioFile',
-    value: function readAudioFile(audioFile) {
-      var _this3 = this;
-
-      var fileReader = new FileReader();
-      fileReader.onload = function (e) {
-        _this3.currentFile = audioFile.name;
-        _this3.play(e.target.result);
-      };
-
-      fileReader.readAsArrayBuffer(audioFile);
-    }
-  }, {
-    key: 'play',
-    value: function play(audioData) {
-      var _this4 = this;
-
-      this.inputAudioCtx.decodeAudioData(audioData).then(function (buffer) {
-        window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-        _this4.offlineCtx = new OfflineAudioContext(2, 44100 * buffer.duration, 44100);
-
-        var sourceNode = _this4.offlineCtx.createBufferSource();
-        sourceNode.buffer = buffer;
-        sourceNode.connect(_this4.offlineCtx.destination);
-        sourceNode.start();
-
-        var self = _this4;
-        // resample to 44100 Hz using an offline audio context
-        // otherwise the visualizations will be thrown off
-        _this4.offlineCtx.startRendering().then(function (renderedBuffer) {
-          _this4.outputAudioCtx = _this4.outputAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
-
-          _this4.analyzer = _this4.analyzer || _this4.outputAudioCtx.createAnalyser();
-
-          var track = _this4.outputAudioCtx.createBufferSource();
-          track.buffer = renderedBuffer;
-          track.connect(_this4.analyzer);
-          _this4.analyzer.connect(_this4.outputAudioCtx.destination);
-
-          if (self.source) self.source.disconnect();
-
-          self.trackTitle.textContent = self.currentFile;
-          self.trackStatus.textContent = "Playing";
-          self.source = track;
-          self.source.start();
-
-          if (_this4.cameraTween) _this4.cameraTween.resume();
-
-          self.source.onended = self.handleEnd;
-        });
-
-        (0, _jquery2.default)(".audio-btn").each(function () {
-          (0, _jquery2.default)(this).removeClass("null");
-        });
-
-        (0, _jquery2.default)(".fa-play").addClass("null");
-      });
+      if (this.cameraTween) this.cameraTween.resume();
     }
   }, {
     key: 'resume',
     value: function resume() {
-      if (this.outputAudioCtx && this.outputAudioCtx.state === "suspended") {
-        (0, _jquery2.default)(".fa-play").addClass("null");
-        this.outputAudioCtx.resume();
-        this.trackStatus.textContent = "Playing";
+      if (this.audioProcessor.resume()) {
         if (this.cameraTween) this.cameraTween.resume();
         this.animation = requestAnimationFrame(this.animate);
       }
@@ -10647,10 +10573,7 @@ var Visualizer = function () {
   }, {
     key: 'pause',
     value: function pause() {
-      if (this.outputAudioCtx && this.outputAudioCtx.state === "running") {
-        (0, _jquery2.default)(".fa-pause").addClass("null");
-        this.outputAudioCtx.suspend();
-        this.trackStatus.textContent = "Paused";
+      if (this.audioProcessor.pause()) {
         if (this.cameraTween) this.cameraTween.pause();
         cancelAnimationFrame(this.animation);
       }
@@ -10658,32 +10581,16 @@ var Visualizer = function () {
   }, {
     key: 'stop',
     value: function stop() {
-      if (this.outputAudioCtx) {
-        if (this.outputAudioCtx.state === "suspended") this.resume();
+      if (this.audioProcessor.stop()) {
+        this.resume();
         this.handleEnd();
       }
     }
   }, {
     key: 'handleEnd',
     value: function handleEnd() {
-      var _this5 = this;
-
-      var manual = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-      if (this.source) {
-        this.source.disconnect();
-        this.source.stop(0);
-      }
-
+      this.audioProcessor.handleEnd();
       if (this.cameraTween) this.cameraTween.pause();
-      this.trackStatus.textContent = "";
-      this.trackTitle.textContent = "";
-      this.currentFile = null;
-      (0, _jquery2.default)(".audio-btn").addClass("null");
-
-      setTimeout(function () {
-        _this5.source = null;
-      }, 1000);
     }
   }, {
     key: 'setupRendering',
@@ -10697,7 +10604,8 @@ var Visualizer = function () {
 
       var renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(WIDTH, HEIGHT);
-      this.container.appendChild(renderer.domElement);
+      var container = document.getElementById("container");
+      container.appendChild(renderer.domElement);
 
       var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 
@@ -10929,13 +10837,15 @@ var Visualizer = function () {
           renderer = this.renderer,
           camera = this.camera,
           tween = this.tween,
-          analyzer = this.analyzer,
+          audioProcessor = this.audioProcessor,
           numBars = this.numBars,
           display = this.display;
 
       _gsap2.default.lagSmoothing(33, 33);
 
-      if (this.source) {
+      if (audioProcessor.source) {
+        var analyzer = audioProcessor.analyzer;
+
         var bufferLength = analyzer.frequencyBinCount;
         var dataArray = new Uint8Array(bufferLength);
         analyzer.getByteFrequencyData(dataArray);
@@ -10955,7 +10865,6 @@ var Visualizer = function () {
         var barIdx = display.indexOf("bars");
         this.display.splice(barIdx, 1);
         var barGroup = scene.getObjectByName("bars");
-        _gsap2.default.to(barGroup.scale, 2, { ease: Sine.easeInOut, x: 0, y: 0, z: 0 });
         setTimeout(function () {
           scene.remove(barGroup);
         }, 2000);
@@ -10963,12 +10872,36 @@ var Visualizer = function () {
       }
     }
   }, {
+    key: 'removeBars',
+    value: function removeBars() {
+      var _this2 = this;
+
+      var barCheck = this.barCheck,
+          scene = this.scene,
+          display = this.display;
+
+      var barGroup = scene.getObjectByName("bars");
+      if (barCheck) {
+        _gsap2.default.to(barGroup.scale, 2, { ease: Sine.easeInOut, x: 0, y: 0, z: 0 });
+        setTimeout(function () {
+          var barIdx = display.indexOf("bars");
+          _this2.display.splice(barIdx, 1);
+
+          scene.remove(barGroup);
+        }, 2000);
+
+        (0, _jquery2.default)(".camera-btn").addClass("hidden");
+        this.barCheck = false;
+      }
+    }
+  }, {
     key: 'animateBarsCamera',
     value: function animateBarsCamera() {
-      var _this6 = this;
+      var _this3 = this;
 
       var camera = this.camera,
-          cameraMove = this.cameraMove;
+          cameraMove = this.cameraMove,
+          audioProcessor = this.audioProcessor;
 
       var pos0 = new THREE.Vector3(0, 0, 150);
       var pos1 = new THREE.Vector3(0, 250, 200);
@@ -10980,9 +10913,9 @@ var Visualizer = function () {
 
       if (cameraMove) {
         if (camera.position.equals(pos0)) {
-          if (this.source && this.barCameraCheck) {
+          if (audioProcessor.source && this.barCameraCheck) {
             setTimeout(function () {
-              _this6.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
+              _this3.cameraTween = _gsap2.default.to(camera.position, 5, { ease: Sine.easeInOut, x: 0, y: 250, z: 200 });
             }, 7000);
             this.barCameraCheck = false;
           }
@@ -11104,7 +11037,7 @@ var Visualizer = function () {
       this.helixGroup = helixGroup;
 
       scene.add(this.helixGroup);
-      this.cameraTween.kill();
+      if (this.cameraTween) this.cameraTween.kill();
       this.cameraTween = _gsap2.default.to(camera.position, 2, { x: 0, y: 0, z: 500 });
     }
   }, {
@@ -11114,16 +11047,18 @@ var Visualizer = function () {
       var display = this.display,
           camera = this.camera,
           renderer = this.renderer,
-          analyzer = this.analyzer;
+          audioProcessor = this.audioProcessor;
       var spiral1 = this.spiral1,
           spiral2 = this.spiral2,
           hueChangeSpeed = this.hueChangeSpeed;
 
 
-      if (!this.source) {
+      if (!audioProcessor.source) {
         this.spiral1.rotation.x += 0.001;
         this.spiral2.rotation.x += 0.001;
       } else {
+        var analyzer = audioProcessor.analyzer;
+
         var bufferLength = analyzer.frequencyBinCount;
         var dataArray = new Uint8Array(bufferLength);
         analyzer.getByteFrequencyData(dataArray);
@@ -63382,6 +63317,188 @@ try {
 
 module.exports = g;
 
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AudioProcessor = function () {
+  function AudioProcessor() {
+    _classCallCheck(this, AudioProcessor);
+
+    this.inputAudioCtx;
+    this.offlineCtx;
+    this.outputAudioCtx;
+    this.analyzer;
+    this.source;
+    this.currentFile;
+    this.trackStatus = document.querySelector(".track-status");
+    this.trackTitle = document.querySelector(".track-title");
+
+    this.handleEnd = this.handleEnd.bind(this);
+  }
+
+  _createClass(AudioProcessor, [{
+    key: "init",
+    value: function init() {
+      this.inputAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }, {
+    key: "loadAndPlaySample",
+    value: function loadAndPlaySample(url) {
+      var _this = this;
+
+      var request = new XMLHttpRequest();
+      this.currentFile = url.slice(19);
+      request.open("GET", url);
+      request.responseType = "arraybuffer";
+
+      request.onload = function () {
+        _this.play(request.response);
+      };
+
+      this.trackStatus.textContent = "Loading audio...";
+      request.send();
+    }
+  }, {
+    key: "handleUpload",
+    value: function handleUpload(upload) {
+      this.trackStatus.textContent = "Loading audio...";
+      this.trackTitle.textContent = "";
+      if (upload.files.length > 0) {
+        this.readAudioFile(upload.files[0]);
+      }
+    }
+  }, {
+    key: "readAudioFile",
+    value: function readAudioFile(audioFile) {
+      var _this2 = this;
+
+      var fileReader = new FileReader();
+      fileReader.onload = function (e) {
+        _this2.currentFile = audioFile.name;
+        _this2.play(e.target.result);
+      };
+
+      fileReader.readAsArrayBuffer(audioFile);
+    }
+  }, {
+    key: "play",
+    value: function play(audioData) {
+      var _this3 = this;
+
+      (0, _jquery2.default)(".audio-btn").each(function () {
+        (0, _jquery2.default)(this).removeClass("null");
+      });
+
+      (0, _jquery2.default)(".fa-play").addClass("null");
+
+      this.inputAudioCtx.decodeAudioData(audioData).then(function (buffer) {
+        window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        _this3.offlineCtx = new OfflineAudioContext(2, 44100 * buffer.duration, 44100);
+
+        var sourceNode = _this3.offlineCtx.createBufferSource();
+        sourceNode.buffer = buffer;
+        sourceNode.connect(_this3.offlineCtx.destination);
+        sourceNode.start();
+
+        var self = _this3;
+        // resample to 44100 Hz using an offline audio context
+        // otherwise the visualizations will be thrown off
+        _this3.offlineCtx.startRendering().then(function (renderedBuffer) {
+          self.outputAudioCtx = self.outputAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+          self.analyzer = self.analyzer || self.outputAudioCtx.createAnalyser();
+
+          var track = self.outputAudioCtx.createBufferSource();
+          track.buffer = renderedBuffer;
+          track.connect(self.analyzer);
+          self.analyzer.connect(self.outputAudioCtx.destination);
+
+          if (self.source) self.source.disconnect();
+
+          self.trackTitle.textContent = self.currentFile;
+          self.trackStatus.textContent = "Playing";
+          self.source = track;
+          self.source.start();
+
+          self.source.onended = self.handleEnd;
+        });
+      });
+    }
+  }, {
+    key: "resume",
+    value: function resume() {
+      if (this.outputAudioCtx && this.outputAudioCtx.state === "suspended") {
+        (0, _jquery2.default)(".fa-play").addClass("null");
+        this.outputAudioCtx.resume();
+        this.trackStatus.textContent = "Playing";
+        return true;
+      }
+      return false;
+    }
+  }, {
+    key: "pause",
+    value: function pause() {
+      if (this.outputAudioCtx && this.outputAudioCtx.state === "running") {
+        (0, _jquery2.default)(".fa-pause").addClass("null");
+        this.outputAudioCtx.suspend();
+        this.trackStatus.textContent = "Paused";
+        return true;
+      }
+      return false;
+    }
+  }, {
+    key: "stop",
+    value: function stop() {
+      if (this.outputAudioCtx) {
+        if (this.outputAudioCtx.state === "suspended") this.resume();
+        return true;
+      }
+      return false;
+    }
+  }, {
+    key: "handleEnd",
+    value: function handleEnd() {
+      var _this4 = this;
+
+      if (this.source) {
+        this.source.disconnect();
+        this.source.stop(0);
+      }
+
+      this.trackStatus.textContent = "";
+      this.trackTitle.textContent = "";
+      this.currentFile = null;
+      (0, _jquery2.default)(".audio-btn").addClass("null");
+
+      setTimeout(function () {
+        _this4.source = null;
+      }, 1000);
+    }
+  }]);
+
+  return AudioProcessor;
+}();
+
+exports.default = AudioProcessor;
 
 /***/ })
 /******/ ]);
