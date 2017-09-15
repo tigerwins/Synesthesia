@@ -64,13 +64,6 @@
 /******/ })
 /************************************************************************/
 /******/ ([
-<<<<<<< HEAD
-/* 0 */,
-/* 1 */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/home/jonathan/AppAcademy/Synesthesia/lib/js/main.js'\n    at Error (native)");
-=======
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -63506,7 +63499,6 @@ var AudioProcessor = function () {
 }();
 
 exports.default = AudioProcessor;
->>>>>>> dev
 
 /***/ })
 /******/ ]);
