@@ -430,7 +430,10 @@ class Visualizer {
       const barIdx = display.indexOf("bars");
       this.display.splice(barIdx, 1);
       const barGroup = scene.getObjectByName("bars");
-      scene.remove(barGroup);
+      TweenMax.to(barGroup.scale, 2, { ease: Sine.easeInOut, x: 0, y: 0, z: 0 });
+      setTimeout(() => {
+        scene.remove(barGroup);
+      }, 2000);
       $(".camera-btn").addClass("hidden");
     }
   }
@@ -574,7 +577,8 @@ class Visualizer {
     this.helixGroup = helixGroup;
 
     scene.add(this.helixGroup);
-
+    // TweenMax.killAll();
+    this.cameraTween.kill();
     this.cameraTween = TweenMax.to(camera.position, 2, { x: 0, y: 0, z: 500 });
   }
 

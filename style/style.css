@@ -149,7 +149,6 @@ ul.menu.closed {
   visibility: hidden;
   opacity: 0;
   transition: 0.4s;
-  /*animation: fadeout 0.4s;*/
 }
 
 ul.menu li {
@@ -189,28 +188,27 @@ div#question:hover {
   display: none;
 }
 
-
 /* Audio & Camera Controls */
 
 div.controls {
   position: absolute;
   bottom: 0;
   left: 0;
-  margin: 15px;
+  margin-left: 15px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 div.audio-box {
   display: flex;
-  flex-direction: column;
 }
 
 div.track-info {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-left: 10px;
 }
 
 div.track-info span {
@@ -220,6 +218,8 @@ div.track-info span {
 div.audio-buttons {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
+  margin: 15px 15px 15px 0;
 }
 
 div.audio-buttons > i {
@@ -241,14 +241,18 @@ i:hover {
   cursor: pointer;
 }
 
+div.camera-controls {
+  display: flex;
+  align-items: flex-end;
+}
+
 span.camera-btn {
   font-size: 14px;
   color: #333;
   padding: 5px 8px;
-  width: 40px;
   background: #ccc;
-  margin: 15px 10px;
   transition: 0.3s;
+  align-self: center;
 }
 
 span.camera-btn:hover {

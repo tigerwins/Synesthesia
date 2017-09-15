@@ -10986,7 +10986,10 @@ var Visualizer = function () {
         var barIdx = display.indexOf("bars");
         this.display.splice(barIdx, 1);
         var barGroup = scene.getObjectByName("bars");
-        scene.remove(barGroup);
+        _gsap2.default.to(barGroup.scale, 2, { ease: Sine.easeInOut, x: 0, y: 0, z: 0 });
+        setTimeout(function () {
+          scene.remove(barGroup);
+        }, 2000);
         (0, _jquery2.default)(".camera-btn").addClass("hidden");
       }
     }
@@ -11132,7 +11135,8 @@ var Visualizer = function () {
       this.helixGroup = helixGroup;
 
       scene.add(this.helixGroup);
-
+      // TweenMax.killAll();
+      this.cameraTween.kill();
       this.cameraTween = _gsap2.default.to(camera.position, 2, { x: 0, y: 0, z: 500 });
     }
   }, {
